@@ -25,6 +25,7 @@ menubar.add_cascade(label='Help', menu=help)
 
 canvas = ttk.Frame(root, borderwidth = 5, relief="ridge", width=500, height=500)
 canvas.grid(column = 0, row = 1)
+canvas.grid_propagate(False)
 
 panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
 panel.grid(column=1, row=1)
@@ -35,7 +36,7 @@ root.config(menu=menubar)
 #Replication  Section
 def Replication(x): 
     Copy_Label = Label(canvas, text=x)
-    Copy_Label.pack()
+    Copy_Label.grid(row=0, column=0)
 
 Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Replication("Frontal Lobe")).grid(row=1,column=1)
 Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Replication("Occipital Lobe")).grid(row=2,column=1)
