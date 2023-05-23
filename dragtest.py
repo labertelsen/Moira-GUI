@@ -1,50 +1,20 @@
 from tkinter import *
 from tkinter import ttk
-
+ 
 def add_dragable( widget):
         widget.bind('<ButtonPress-1>', on_start)
         widget.bind('<B1-Motion>', on_drag)
-        widget.bind('<ButtonRelease>', on_drop)
-        print('draggable')
 
 def on_start(event):
-    print('start')
-    pass
+    widget = event.widget
+    widget.startx = event.x
+    widget.starty = event.y
 
 def on_drag(event):
-    pass
-
-def on_drop(event):
-    # print('drop')
-    # x,y = event.widget.winfo_pointerxy()
-    # print(x,y)
-    # target = event.widget.winfo_containing(x,y)
-    # print('****')
-    # print(event)
-    # print(event.widget)
-    # print(event.widget.winfo_containing(x,y))
-    # print('****')
-    # try:
-    #     event.widget.place(x=x,y=y)
-    # except:
-    #     print('except')
-    print('drop')
-    x=event.x
-    y=event.y
-    print(x,y)
-    target = event.widget.winfo_containing(x,y)
-    print('****')
-    print(event)
-    print(event.widget)
-    print(event.widget.winfo_containing(x,y))
-    print('****')
-    try:
-        event.widget.place(x=x,y=y)
-    except:
-        print('except')
-        pass
-
-
+    widget = event.widget
+    x = widget.winfo_x() - widget.startx + event.x
+    y = widget.winfo_y() - widget.starty + event.y
+    widget.place(x=x, y=y)
 
 root = Tk()
 root.title("dragndrop test")
@@ -58,9 +28,5 @@ btn = ttk.Button(canvas, text="Drag Me")
 btn.grid(column=0, row=0)
 
 add_dragable(btn)
-
-btn.bind('<ButtonPress-1>', on_start)
-btn.bind('<B1-Motion>', on_drag)
-btn.bind('<ButtonRelease-1>', on_drop)
 
 root.mainloop()

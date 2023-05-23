@@ -1,6 +1,21 @@
 from tkinter import *
 from tkinter import ttk
 
+def add_dragable( widget):
+        widget.bind('<ButtonPress-1>', on_start)
+        widget.bind('<B1-Motion>', on_drag)
+
+def on_start(event):
+    widget = event.widget
+    widget.startx = event.x
+    widget.starty = event.y
+
+def on_drag(event):
+    widget = event.widget
+    x = widget.winfo_x() - widget.startx + event.x
+    y = widget.winfo_y() - widget.starty + event.y
+    widget.place(x=x, y=y)
+
 root = Tk()
 root.title("Build-a-Brain")
 
@@ -35,8 +50,9 @@ root.config(menu=menubar)
 
 #Replication  Section
 def Replication(x): 
-    Copy_Label = Label(canvas, text=x)
+    Copy_Label = Label(canvas, text=x, borderwidth=5, relief="ridge")
     Copy_Label.grid(row=0, column=0)
+    add_dragable(Copy_Label)
 
 Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Replication("Frontal Lobe")).grid(row=1,column=1)
 Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Replication("Occipital Lobe")).grid(row=2,column=1)
