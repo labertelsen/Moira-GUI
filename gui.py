@@ -25,16 +25,24 @@ menubar.add_cascade(label='Help', menu=help)
 
 canvas = ttk.Frame(root, borderwidth = 5, relief="ridge", width=500, height=500)
 canvas.grid(column = 0, row = 1)
+canvas.grid_propagate(False)
 
 panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
 panel.grid(column=1, row=1)
 panel.grid_propagate(False)
 
-opt1='test'
-widget1 = ttk.Combobox(panel, text='test2', textvariable=opt1)
-widget1['values'] = ('Choice 1', 'Choice 2', 'Choice 3')
-widget1.state(["readonly"])
-widget1.grid(row=0, column=0)
-
 root.config(menu=menubar)
+
+#Replication  Section
+def Replication(x): 
+    Copy_Label = Label(canvas, text=x)
+    Copy_Label.grid(row=0, column=0)
+
+Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Replication("Frontal Lobe")).grid(row=1,column=1)
+Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Replication("Occipital Lobe")).grid(row=2,column=1)
+Temporal_Lobe = Button(panel, text="Temporal Lobe", command=lambda: Replication("Temporal Lobe")).grid(row=3,column=1)
+Parietal_Lobe = Button(panel,text="Parietal Lobe",command=lambda: Replication("Parietal Lobe")).grid(row=4,column=1)
+
+
+
 root.mainloop()
