@@ -4,7 +4,7 @@ from tkinter import ttk
 def add_dragable( widget):
         widget.bind('<ButtonPress-1>', on_start)
         widget.bind('<B1-Motion>', on_drag)
-#NEW LIME
+
 def on_start(event):
     widget = event.widget
     widget.startx = event.x
