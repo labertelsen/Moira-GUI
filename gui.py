@@ -37,7 +37,8 @@ root.config(menu=menubar)
 def Replication(x): 
     Copy_Label = Label(canvas, text=x)
     Copy_Label.grid(row=0, column=0)
-
+    #Window REACT
+    
 Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Replication("Frontal Lobe")).grid(row=1,column=1)
 Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Replication("Occipital Lobe")).grid(row=2,column=1)
 Temporal_Lobe = Button(panel, text="Temporal Lobe", command=lambda: Replication("Temporal Lobe")).grid(row=3,column=1)
