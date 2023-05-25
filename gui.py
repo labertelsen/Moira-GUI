@@ -16,9 +16,12 @@ def on_drag(event):
     y = widget.winfo_y() - widget.starty + event.y
     widget.place(x=x, y=y)
 
+
 root = Tk()
 root.title("Build-a-Brain")
-
+#Use Geometry if need be 
+# root.geometry("700x500")
+ 
 menubar = Menu(root)
 
 file = Menu(menubar, tearoff=0)
@@ -38,13 +41,20 @@ menubar.add_cascade(label='View', menu=view)
 help = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help)
 
-canvas = ttk.Frame(root, borderwidth = 5, relief="ridge", width=500, height=500)
-canvas.grid(column = 0, row = 1)
+canvas = ttk.Frame(root, borderwidth = 5, relief="ridge", width=500, height=500) 
+canvas.grid(column = 0, row = 1,sticky="nsew", columnspan=1, rowspan=1 )
 canvas.grid_propagate(False)
 
-panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
-panel.grid(column=1, row=1)
+
+
+panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500 )
+panel.grid(column=1, row=1,sticky="nsew",columnspan=1, rowspan=1 )
 panel.grid_propagate(False)
+
+root.grid_columnconfigure(0, weight=1)
+root.grid_rowconfigure(1, weight=1) 
+root.grid_columnconfigure(1, weight=1 )
+root.grid_rowconfigure(1, weight=1 )
 
 root.config(menu=menubar)
 
