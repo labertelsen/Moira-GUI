@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
+
 def add_dragable( widget):
         widget.bind('<ButtonPress-1>', on_start)
         widget.bind('<B1-Motion>', on_drag)
@@ -15,6 +16,9 @@ def on_drag(event):
     x = widget.winfo_x() - widget.startx + event.x
     y = widget.winfo_y() - widget.starty + event.y
     widget.place(x=x, y=y)
+
+
+
 
 root = Tk()
 root.title("Build-a-Brain")
