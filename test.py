@@ -52,43 +52,25 @@ class LineDrag():
         widget.bind('<ButtonRelease-1>', self.on_release)
     
     def on_start(self, event):
-        print('port clicked')
-        
-        parentName = event.widget.winfo_parent()
-        parent = event.widget._nametowidget(parentName) 
-        parent.startx = event.x + parent.winfo_x()
-        parent.starty = event.y + parent.winfo_y()
-
-        coords[0] = parent.startx
-        coords[1] = parent.starty
-
+        x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+        y = canvas.winfo_pointery()-canvas.winfo_rooty()
+        coords[0] = x
+        coords[1] = y
         lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1]))
 
     def on_drag(self, event):
-
-        parentName = event.widget.winfo_parent()
-        parent = event.widget._nametowidget(parentName)
-        # x = parent.winfo_pointerx() - parent.startx + event.x
-        # y = parent.winfo_pointery() - parent.starty + event.y
-
-
-        grandparent = event.widget.master.master
-        
-        # x = grandparent.winfo_x() + root.winfo_rootx()
-        # y = grandparent.winfo_y() + root.winfo_rooty()
-        # x = root.winfo_rootx() + event.x
-        # y = root.winfo_rooty() + event.y
-        x = canvas.winfo_pointerx() - 80
-        y = canvas.winfo_pointery() - 80
-        # x = event.x
-        # y = event.y
-
+        x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+        y = canvas.winfo_pointery()-canvas.winfo_rooty()
         coords[2] = x
         coords[3] = y
-        print(event.x, event.y, canvas.winfo_pointerx(), canvas.winfo_pointery(), event.widget.winfo_x(), event.widget.winfo_y(), canvas.winfo_pointerx()-event.x, canvas.winfo_pointery()-event.y)
-        # canvas.coords(lines[-1], coords[0],coords[1],x,y)
+        canvas.coords(lines[-1], coords[0],coords[1],x,y)
 
     def on_release(self, event):
+        last_line = canvas.coords(lines[-1])
+        print(last_line[2], last_line[3])
+
+        # canvas.delete(lines[-1])
+        # lines.pop()
         linedb.append(canvas.coords(lines[-1]))
         print(linedb)
 
@@ -104,5 +86,9 @@ bd = BlockDrag()
 ld = LineDrag()
 block1 = Block(canvas)
 block2 = Block(canvas)
+
+target = Frame(canvas, height = 100, width = 100, borderwidth = 5, relief = "ridge")
+target.grid(row = 3, column = 3)
+target.grid_propagate(False)
 
 root.mainloop()
