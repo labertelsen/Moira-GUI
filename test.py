@@ -44,6 +44,7 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+        print(parent.winfo_rootx(), parent.winfo_rooty())
 
 class LineDrag():
     def add_draggable(self, widget):
@@ -63,12 +64,14 @@ class LineDrag():
         y = canvas.winfo_pointery()-canvas.winfo_rooty()
         coords[2] = x
         coords[3] = y
-        canvas.coords(lines[-1], coords[0],coords[1],x,y)
+        canvas.coords(lines[-1], coords[0], coords[1], x, y)
 
     def on_release(self, event):
-        last_line = canvas.coords(lines[-1])
-        print(last_line[2], last_line[3])
-
+        lastx = canvas.coords(lines[-1])[2]
+        lasty = canvas.coords(lines[-1])[3]
+        print(lastx, lasty)
+        
+        find_widget(lastx, lasty)
         # canvas.delete(lines[-1])
         # lines.pop()
         linedb.append(canvas.coords(lines[-1]))
@@ -82,13 +85,44 @@ canvas.grid(column = 0, row = 1)
 root.grid_propagate(False)
 canvas.grid_propagate(False)
 
+def find_widget(x,y):
+    root.update()
+    for block in blockdb:
+        print('searching: ', block)
+        x1 = block.frame.winfo_rootx()-root.winfo_rootx()
+        y1 = block.frame.winfo_rooty()-root.winfo_rooty()
+        x2 = x1+ block.frame.winfo_width()
+        y2 = y1+ block.frame.winfo_height()
+    
+
+        if x1 <= x <= x2 and y1 <= y <= y2:
+            print('yay')
+            print('ended on a block: ', block)
+            leftx1 = block.leftport.winfo_rootx() - root.winfo_rootx()
+            leftx2 = leftx1 + block.leftport.winfo_width()
+            lefty1 = block.leftport.winfo_rooty() - root.winfo_rooty()
+            lefty2 = lefty1 + block.leftport.winfo_height()
+
+            rightx1 = block.rightport.winfo_rootx() - root.winfo_rootx()
+            rightx2 = rightx1 + block.rightport.winfo_width()
+            righty1 = block.rightport.winfo_rooty() - root.winfo_rooty()
+            righty2 = righty1 + block.rightport.winfo_height()
+
+            if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:
+                print('ended on left port')
+                return(block)
+            elif rightx1 <= x <= rightx2 and righty1 <= y <= righty2:
+                print('ended on right port')
+                return(block)
+            else:
+                return None
+        else:
+            return None
+
 bd = BlockDrag()
 ld = LineDrag()
 block1 = Block(canvas)
 block2 = Block(canvas)
-
-target = Frame(canvas, height = 100, width = 100, borderwidth = 5, relief = "ridge")
-target.grid(row = 3, column = 3)
-target.grid_propagate(False)
+blockdb = [block1, block2]
 
 root.mainloop()

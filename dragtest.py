@@ -15,6 +15,7 @@ def on_drag(event):
     x = widget.winfo_x() - widget.startx + event.x
     y = widget.winfo_y() - widget.starty + event.y
     widget.place(x=x, y=y)
+    print(widget.winfo_rootx(), widget.winfo_rooty())
 
 root = Tk()
 root.title("dragndrop test")
