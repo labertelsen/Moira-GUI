@@ -65,7 +65,6 @@ class LineDrag():
         lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1]))
 
     def on_drag(self, event):
-        print('port dragged')
 
         parentName = event.widget.winfo_parent()
         parent = event.widget._nametowidget(parentName)
@@ -86,7 +85,7 @@ class LineDrag():
 
         coords[2] = x
         coords[3] = y
-        print(event.x, event.y, canvas.winfo_pointerx(), canvas.winfo_pointery())
+        print(event.x, event.y, canvas.winfo_pointerx(), canvas.winfo_pointery(), event.widget.winfo_x(), event.widget.winfo_y(), canvas.winfo_pointerx()-event.x, canvas.winfo_pointery()-event.y)
         # canvas.coords(lines[-1], coords[0],coords[1],x,y)
 
     def on_release(self, event):
