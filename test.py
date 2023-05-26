@@ -7,12 +7,12 @@ lines = []
 linedb = []
 
 class Block():
-    def __init__(self, parent):
+    def __init__(self, parent,Lobe_Name):
 
         self.frame = ttk.Frame(parent)
         self.frame.grid(column=0, row=0)
 
-        self.label = ttk.Button(self.frame, text="Drag Me")
+        self.label = ttk.Button(self.frame, text=Lobe_Name)
         self.label.grid(column=1,row=0)
 
         self.leftport = Label(self.frame, width = 1)
@@ -124,5 +124,14 @@ ld = LineDrag()
 block1 = Block(canvas)
 block2 = Block(canvas)
 blockdb = [block1, block2]
+
+target = Frame(canvas, height = 100, width = 100, borderwidth = 5, relief = "ridge")
+target.grid(row = 3, column = 3)
+target.grid_propagate(False)
+
+Frontal_Lobe = Button(canvas,text="Frontal Lobe",  command=lambda: Block(canvas,"Frontal Lobe")).grid(row=1,column=1)
+Occipital_Lobe = Button(canvas, text="Occipital Lobe", command=lambda: Block(canvas,"Occipital Lobe")).grid(row=2,column=1)
+Temporal_Lobe = Button(canvas, text="Temporal Lobe", command=lambda: Block(canvas,"Temporal Lobe")).grid(row=3,column=1)
+Parietal_Lobe = Button(canvas,text="Parietal Lobe",command=lambda: Block(canvas,"Parietal Lobe")).grid(row=4,column=1)
 
 root.mainloop()

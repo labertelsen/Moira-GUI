@@ -1,20 +1,78 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import Widget
 
-def add_dragable( widget):
-        widget.bind('<ButtonPress-1>', on_start)
-        widget.bind('<B1-Motion>', on_drag)
+coords = [0, 0, 0, 0]
+lines = []
+linedb = []
 
-def on_start(event):
-    widget = event.widget
-    widget.startx = event.x
-    widget.starty = event.y
+class Block():
+    def __init__(self, parent,Lobe_Name):
 
-def on_drag(event):
-    widget = event.widget
-    x = widget.winfo_x() - widget.startx + event.x
-    y = widget.winfo_y() - widget.starty + event.y
-    widget.place(x=x, y=y)
+        self.frame = ttk.Frame(parent)
+        self.frame.grid(column=0, row=0)
+
+        self.label = ttk.Button(self.frame, text=Lobe_Name)
+        self.label.grid(column=1,row=0)
+
+        self.leftport = Label(self.frame, width = 1)
+        self.leftport.configure(bg="blue")
+        self.leftport.grid(column=0, row=0)
+
+        self.rightport = Label(self.frame, width = 1)
+        self.rightport.configure(bg="red")
+        self.rightport.grid(column=2, row=0)
+
+        bd.add_draggable(self.label)
+        ld.add_draggable(self.leftport)
+        ld.add_draggable(self.rightport)
+        
+class BlockDrag():
+    def add_draggable(self, widget):
+            widget.bind('<ButtonPress-1>', self.on_start)
+            widget.bind('<B1-Motion>', self.on_drag)
+
+    def on_start(self, event):
+        parentName = event.widget.winfo_parent()
+        parent = event.widget._nametowidget(parentName) 
+        parent.startx = event.x
+        parent.starty = event.y
+
+    def on_drag(self, event):
+        parentName = event.widget.winfo_parent()
+        parent = event.widget._nametowidget(parentName)
+        x = parent.winfo_x() - parent.startx + event.x
+        y = parent.winfo_y() - parent.starty + event.y
+        parent.place(x=x, y=y)
+
+class LineDrag():
+    def add_draggable(self, widget):
+        widget.bind('<ButtonPress-1>', self.on_start)
+        widget.bind('<B1-Motion>', self.on_drag)
+        widget.bind('<ButtonRelease-1>', self.on_release)
+    
+    def on_start(self, event):
+        x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+        y = canvas.winfo_pointery()-canvas.winfo_rooty()
+        coords[0] = x
+        coords[1] = y
+        lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1]))
+
+    def on_drag(self, event):
+        x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+        y = canvas.winfo_pointery()-canvas.winfo_rooty()
+        coords[2] = x
+        coords[3] = y
+        canvas.coords(lines[-1], coords[0],coords[1],x,y)
+
+    def on_release(self, event):
+        last_line = canvas.coords(lines[-1])
+        print(last_line[2], last_line[3])
+
+        # canvas.delete(lines[-1])
+        # lines.pop()
+        linedb.append(canvas.coords(lines[-1]))
+        print(linedb)
 
 root = Tk()
 root.title("Build-a-Brain")
@@ -38,26 +96,29 @@ menubar.add_cascade(label='View', menu=view)
 help = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help)
 
-canvas = ttk.Frame(root, borderwidth = 5, relief="ridge", width=500, height=500)
-canvas.grid(column = 0, row = 1)
+canvas = Canvas(root, borderwidth = 5, relief="ridge", width=500, height=500)
+canvas.grid(column = 0, row = 1,sticky="nswe" ,columnspan=1,rowspan=1)
 canvas.grid_propagate(False)
 
+root.rowconfigure(1,weight=1)
+root.columnconfigure(0,weight=1)
+
+
+
 panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
-panel.grid(column=1, row=1)
+panel.grid(column=1, row=1,sticky="nswe" ,columnspan=1,rowspan=1)
 panel.grid_propagate(False)
 
 root.config(menu=menubar)
 
-#Replication  Section
-def Replication(x): 
-    Copy_Label = Label(canvas, text=x, borderwidth=5, relief="ridge")
-    Copy_Label.grid(row=0, column=0)
-    add_dragable(Copy_Label)
 
-Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Replication("Frontal Lobe")).grid(row=1,column=1)
-Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Replication("Occipital Lobe")).grid(row=2,column=1)
-Temporal_Lobe = Button(panel, text="Temporal Lobe", command=lambda: Replication("Temporal Lobe")).grid(row=3,column=1)
-Parietal_Lobe = Button(panel,text="Parietal Lobe",command=lambda: Replication("Parietal Lobe")).grid(row=4,column=1)
+bd = BlockDrag()
+ld = LineDrag()
+
+Frontal_Lobe = Button(panel,text="Frontal Lobe",  command=lambda: Block(canvas,"Frontal Lobe")).grid(row=1,column=1)
+Occipital_Lobe = Button(panel, text="Occipital Lobe", command=lambda: Block(canvas,"Occipital Lobe")).grid(row=2,column=1)
+Temporal_Lobe = Button(panel, text="Temporal Lobe", command=lambda: Block(canvas,"Temporal Lobe")).grid(row=3,column=1)
+Parietal_Lobe = Button(panel,text="Parietal Lobe",command=lambda: Block(canvas,"Parietal Lobe")).grid(row=4,column=1)
 
 
 
