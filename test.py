@@ -5,9 +5,10 @@ from tkinter import Widget
 coords = [0, 0, 0, 0]
 lines = []
 linedb = []
+colors = ["gold", "red", "blue", "green"]
 
 class Block():
-    def __init__(self, parent):
+    def __init__(self, parent, lefttype, righttype):
 
         self.frame = ttk.Frame(parent)
         self.frame.grid(column=0, row=0)
@@ -16,12 +17,14 @@ class Block():
         self.label.grid(column=1,row=0)
 
         self.leftport = Label(self.frame, width = 1)
-        self.leftport.configure(bg="blue")
+        self.leftport.configure(bg=colors[lefttype])
         self.leftport.grid(column=0, row=0)
+        self.leftport.type = lefttype
 
         self.rightport = Label(self.frame, width = 1)
-        self.rightport.configure(bg="red")
+        self.rightport.configure(bg=colors[righttype])
         self.rightport.grid(column=2, row=0)
+        self.rightport.type = righttype
 
         bd.add_draggable(self.label)
         ld.add_draggable(self.leftport)
@@ -66,15 +69,19 @@ class LineDrag():
         canvas.coords(lines[-1], coords[0], coords[1], x, y)
 
     def on_release(self, event):
-        lastx = canvas.coords(lines[-1])[2]
-        lasty = canvas.coords(lines[-1])[3]
-        
-        if find_widget(lastx, lasty):
-            linedb.append(canvas.coords(lines[-1]))
-            # normalize_line()
+        start_port = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
+        end_port = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
+        if start_port and end_port:
+            if start_port.type == end_port.type:
+                linedb.append(canvas.coords(lines[-1]))
+                # normalize_line()
+            else:
+                canvas.delete(lines[-1])
+                lines.pop() 
         else:
             canvas.delete(lines[-1])
             lines.pop()
+        print(linedb)
 
 root = Tk()
 root.title("dragndrop test")
@@ -87,10 +94,10 @@ canvas.grid_propagate(False)
 def find_widget(x,y):
     root.update()
     for block in blockdb:
-        x1 = block.frame.winfo_rootx()-root.winfo_rootx()
-        y1 = block.frame.winfo_rooty()-root.winfo_rooty()
-        x2 = x1+ block.frame.winfo_width()
-        y2 = y1+ block.frame.winfo_height()
+        x1 = block.frame.winfo_rootx() - root.winfo_rootx()
+        y1 = block.frame.winfo_rooty() - root.winfo_rooty()
+        x2 = x1 + block.frame.winfo_width()
+        y2 = y1 + block.frame.winfo_height()
     
 
         if x1 <= x <= x2 and y1 <= y <= y2:
@@ -105,11 +112,9 @@ def find_widget(x,y):
             righty2 = righty1 + block.rightport.winfo_height()
 
             if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:
-                print('ended on left port')
-                return(block)
+                return(block.leftport)
             elif rightx1 <= x <= rightx2 and righty1 <= y <= righty2:
-                print('ended on right port')
-                return(block)
+                return(block.rightport)
             else:
                 return None
             
@@ -119,8 +124,9 @@ def normalize_line():
 
 bd = BlockDrag()
 ld = LineDrag()
-block1 = Block(canvas)
-block2 = Block(canvas)
-blockdb = [block1, block2]
+block1 = Block(canvas, 3 , 2)
+block2 = Block(canvas, 2, 1)
+block3 = Block(canvas, 0, 1)
+blockdb = [block1, block2, block3]
 
 root.mainloop()
