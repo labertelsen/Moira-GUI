@@ -44,7 +44,6 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
-        print(parent.winfo_rootx(), parent.winfo_rooty())
 
 class LineDrag():
     def add_draggable(self, widget):
@@ -69,13 +68,13 @@ class LineDrag():
     def on_release(self, event):
         lastx = canvas.coords(lines[-1])[2]
         lasty = canvas.coords(lines[-1])[3]
-        print(lastx, lasty)
         
-        find_widget(lastx, lasty)
-        # canvas.delete(lines[-1])
-        # lines.pop()
-        linedb.append(canvas.coords(lines[-1]))
-        print(linedb)
+        if find_widget(lastx, lasty):
+            linedb.append(canvas.coords(lines[-1]))
+            # normalize_line()
+        else:
+            canvas.delete(lines[-1])
+            lines.pop()
 
 root = Tk()
 root.title("dragndrop test")
@@ -88,7 +87,6 @@ canvas.grid_propagate(False)
 def find_widget(x,y):
     root.update()
     for block in blockdb:
-        print('searching: ', block)
         x1 = block.frame.winfo_rootx()-root.winfo_rootx()
         y1 = block.frame.winfo_rooty()-root.winfo_rooty()
         x2 = x1+ block.frame.winfo_width()
@@ -96,8 +94,6 @@ def find_widget(x,y):
     
 
         if x1 <= x <= x2 and y1 <= y <= y2:
-            print('yay')
-            print('ended on a block: ', block)
             leftx1 = block.leftport.winfo_rootx() - root.winfo_rootx()
             leftx2 = leftx1 + block.leftport.winfo_width()
             lefty1 = block.leftport.winfo_rooty() - root.winfo_rooty()
@@ -116,8 +112,10 @@ def find_widget(x,y):
                 return(block)
             else:
                 return None
-        else:
-            return None
+            
+def normalize_line():
+    pass
+        
 
 bd = BlockDrag()
 ld = LineDrag()
