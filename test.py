@@ -7,12 +7,12 @@ lines = []
 linedb = []
 
 class Block():
-    def __init__(self, parent):
+    def __init__(self, parent,Block_Text):
 
         self.frame = ttk.Frame(parent)
         self.frame.grid(column=0, row=0)
 
-        self.label = ttk.Button(self.frame, text="Drag Me")
+        self.label = ttk.Button(self.frame, text=Block_Text)
         self.label.grid(column=1,row=0)
 
         self.leftport = Label(self.frame, width = 1)
@@ -121,8 +121,8 @@ def find_widget(x,y):
 
 bd = BlockDrag()
 ld = LineDrag()
-block1 = Block(canvas)
-block2 = Block(canvas)
+block1 = Block(canvas,"Copy")
+block2 = Block(canvas,"Main")
 blockdb = [block1, block2]
 
 root.mainloop()
