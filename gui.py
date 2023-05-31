@@ -101,6 +101,7 @@ class LineDrag():
             canvas.delete(lines[-1])
             lines.pop()
         print(linedb)
+        
 
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
@@ -192,11 +193,46 @@ parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block
 parietal_btn.grid(row=4,column=1)
 
 
+c_object = canvas.find_overlapping(420, 420, 500, 500)
+
+print(c_object)
+
 # block1 = Block(canvas, "button 1", 3 , 2)
 # block2 = Block(canvas, "button 2", 2, 1)
 # block3 = Block(canvas, "button 3", 0, 1)
 # blockdb = [block1, block2, block3]
+print(canvas.winfo_pointerx()-canvas.winfo_rootx())
+print(canvas.winfo_pointery()-canvas.winfo_rooty())
 
+
+
+
+def motion(event):
+    x, y = event.x, event.y
+    #print('{}, {}'.format(x, y))
+
+def onLineCheck(self,x,y,field=False):
+    #y = mx + c
+    #y - mx - c = 0
+    if not field:
+        field = self.Width
+    if (x < self.start_coor[0] and x < self.final_coor[0]) or (x > self.start_coor[0] and x > self.final_coor[0]) or (y < self.start_coor[1] and y < self.final_coor[1]) or (y > self.start_coor[1] and y > self.final_coor[1]):
+        return False
+    temp =  y - (self.m*x) - self.c
+    if abs(temp) <= field:
+        return True
+    return False
+
+def anyLinkClicked(self, e):
+    x, y = e.x, e.y
+    found = self.find_overlapping(x, y, x, y)
+    if found:
+        for l in self.LinkList:
+            if found[0] == l.Shape:
+                return l
+    return False
+
+canvas.bind('<Motion>', motion)
 
 # loop the root window to listen for events
 root.mainloop()
