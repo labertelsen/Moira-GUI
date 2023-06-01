@@ -91,7 +91,7 @@ class LineDrag():
         y = canvas.winfo_pointery()-canvas.winfo_rooty()
         coords[0] = x
         coords[1] = y
-        lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1]))
+        lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1], width=3))
 
     def on_drag(self, event):
         '''when port is dragged, edit the existing line from the startpoint to the mouse's current location'''
@@ -226,7 +226,6 @@ parietal_btn.grid(row=4,column=1)
 #print("test", canvas.find_overlapping(50,50,50,50))
 
 def line_check(e):
-    print("howdytera")
     x = e.x
     y = e.y
     linetodelete = canvas.find_overlapping(x,y,x,y)
@@ -237,10 +236,6 @@ def line_check(e):
     canvas.delete(lines[0])
     lines.remove(linetodelete[0])
     print(lines)
-    
-
-    if x < 50 & y < 50:
-        print("in left corner")
     
 
 canvas.bind("<Button-3>", line_check)
