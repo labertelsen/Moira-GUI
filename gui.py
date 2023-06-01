@@ -26,6 +26,7 @@ class Block():
 
         # creates a frame that holds the entire block
         self.frame = ttk.Frame(parent)
+        #places the block in the left top corner
         self.frame.grid(column=0, row=0)
 
         # creates the center portion of the block
