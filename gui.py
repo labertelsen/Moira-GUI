@@ -229,8 +229,16 @@ def line_check(e):
     print("howdytera")
     x = e.x
     y = e.y
-    print("test", canvas.find_overlapping(x,y,x,y))
+    linetodelete = canvas.find_overlapping(x,y,x,y)
+    print("test", linetodelete)
     print(x, y)
+    print(linetodelete[0]) 
+    print(lines)
+    canvas.delete(lines[0])
+    lines.remove(linetodelete[0])
+    print(lines)
+    
+
     if x < 50 & y < 50:
         print("in left corner")
     
