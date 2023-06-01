@@ -208,41 +208,6 @@ print(c_object)
 print(canvas.winfo_pointerx()-canvas.winfo_rootx())
 print(canvas.winfo_pointery()-canvas.winfo_rooty())
 
-
-
-
-class Link:
-    def __init__(self,Node1,Node2,canvas,width=5):
-        if self not in canvas.LinkList:
-            self.start_coor = Node1.Centre
-            self.final_coor = Node2.Centre
-            self.Canvas = canvas
-            self.Width = width
-            self.Shape = canvas.create_line(self.start_coor,self.final_coor,width=width)
-            Node1.connected(Node2)
-            self.Canvas.LinkList.append(self)
-            self.Nodes = [Node1,Node2]
-
-            self.Clicked = False
-
-            dy = self.final_coor[1] - self.start_coor[1]
-            dx = self.final_coor[0] - self.start_coor[0]
-            self.m = dy/dx
-
-    def onLineCheck(self,x,y,field=False):
-        #y = mx + c
-        #y - mx - c = 0
-        if not field:
-            field = self.Width
-        if (x < self.start_coor[0] and x < self.final_coor[0]) or (x > self.start_coor[0] and x > self.final_coor[0]) or (y < self.start_coor[1] and y < self.final_coor[1]) or (y > self.start_coor[1] and y > self.final_coor[1]):
-            return False
-        temp =  y - (self.m*x) - self.c
-        if abs(temp) <= field:
-            return True
-        return False
-
-
-
 #whichline = canvas.find_overlapping(findx,findy,findx,findy)
 
 secondline = canvas.create_line(50,50,100, 100)
