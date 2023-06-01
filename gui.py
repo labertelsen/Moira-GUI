@@ -3,42 +3,55 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import Widget
 from functools import partial
+import math
 
 # variable setup
+# temporary holidng for coords of current line
 coords = [0, 0, 0, 0]
+# holding for line ids, used for updating line coords on the canvas in linedrag on_drag()
 lines = []
+# permanent holding for line coordinates after line has been completed and validated
 linedb = []
-colors = ["gold", "red", "blue", "green"]
+# colors for port styling
+# colors = ["gold", "red", "blue", "green"]
+colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
 
 class Block():
     '''A class for creating block objects'''
-    def __init__(self, parent, lobe_name, lefttype, righttype):
+    def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes):
         ''' takes name of parent widget (canvas) and the text of the button (lobe name)'''
+
+        # amount of rows required for block formatting
+        total_height = (leftcount if leftcount >= rightcount else rightcount)
 
         # creates a frame that holds the entire block
         self.frame = ttk.Frame(parent)
         self.frame.grid(column=0, row=0)
 
         # creates the center portion of the block
-        self.label = ttk.Button(self.frame, text=lobe_name)
-        self.label.grid(column=1,row=0)
+        self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
+        self.label.grid(column=1,row=0, rowspan=total_height)
 
-        # creates the left port and configures according to type
-        self.leftport = Label(self.frame, width = 1)
-        self.leftport.configure(bg=colors[lefttype])
-        self.leftport.grid(column=0, row=0)
-        self.leftport.type = lefttype
+        # create each left port and append to list
+        self.leftports = []
+        for index in range(leftcount):
+            self.leftports.append(Label(self.frame, width = 1))
+            self.leftports[index].configure(bg=colors[lefttypes[index]])
+            self.leftports[index].grid(column = 0, row = index)
+            self.leftports[index].type = lefttypes[index]
+            ld.add_draggable(self.leftports[index])
 
-        # creates the right port and configures according to type
-        self.rightport = Label(self.frame, width = 1)
-        self.rightport.configure(bg=colors[righttype])
-        self.rightport.grid(column=2, row=0)
-        self.rightport.type = righttype
+        # create each right port and append to list
+        self.rightports = []
+        for index in range(rightcount):
+            self.rightports.append(Label(self.frame, width = 1))
+            self.rightports[index].configure(bg=colors[righttypes[index]])
+            self.rightports[index].grid(column = 2, row = index)
+            self.rightports[index].type = righttypes[index]
+            ld.add_draggable(self.rightports[index])
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
-        ld.add_draggable(self.leftport)
-        ld.add_draggable(self.rightport)
         
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
@@ -95,40 +108,53 @@ class LineDrag():
                 linedb.append(canvas.coords(lines[-1]))
                 # normalize_line()
             else:
+                # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
                 lines.pop() 
         else:
             canvas.delete(lines[-1])
             lines.pop()
-        print(linedb)
+
+def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
+    '''function to create blocks on button click'''
+    # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
+    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
+    blockdb.append(block)
 
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
     for block in blockdb:
+        # boundary values of the block
         x1 = block.frame.winfo_rootx()-root.winfo_rootx()
         y1 = block.frame.winfo_rooty()-root.winfo_rooty()
-        x2 = x1+ block.frame.winfo_width()
-        y2 = y1+ block.frame.winfo_height()
+        x2 = x1 + block.frame.winfo_width()
+        y2 = y1 + block.frame.winfo_height()
     
-
+        # if in port area
         if x1 <= x <= x2 and y1 <= y <= y2:
-            leftx1 = block.leftport.winfo_rootx() - root.winfo_rootx()
-            leftx2 = leftx1 + block.leftport.winfo_width()
-            lefty1 = block.leftport.winfo_rooty() - root.winfo_rooty()
-            lefty2 = lefty1 + block.leftport.winfo_height()
-
-            rightx1 = block.rightport.winfo_rootx() - root.winfo_rootx()
-            rightx2 = rightx1 + block.rightport.winfo_width()
-            righty1 = block.rightport.winfo_rooty() - root.winfo_rooty()
-            righty2 = righty1 + block.rightport.winfo_height()
-
-            if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:
-                return(block.leftport)
-            elif rightx1 <= x <= rightx2 and righty1 <= y <= righty2:
-                return(block.rightport)
-            else:
-                return None
+            # check each left port of the block
+            for index in range(len(block.leftports)):
+                port = block.leftports[index]
+                # boundary values of the port
+                portx1 = port.winfo_rootx() - root.winfo_rootx()
+                portx2 = portx1 + port.winfo_width()
+                porty1 = port.winfo_rooty() - root.winfo_rooty()
+                porty2 = porty1 + port.winfo_height()
+                # if mouse location is in the boundary, return the port
+                if portx1 <= x <= portx2 and porty1 <= y <= porty2:
+                    return block.leftports[index]
+            # if mouse is not in a left port, check each right port
+            for index in range(len(block.rightports)):
+                port = block.rightports[index]
+                portx1 = port.winfo_rootx() - root.winfo_rootx()
+                portx2 = portx1 + port.winfo_width()
+                porty1 = port.winfo_rooty() - root.winfo_rooty()
+                porty2 = porty1 + port.winfo_height()
+                if portx1 <= x <= portx2 and porty1 <= y <= porty2:
+                    return block.rightports[index]
+    # returns None if mouse is in a block but NOT in a port, or is not in a block at all
+    return None
             
 def normalize_line():
     pass
@@ -176,27 +202,15 @@ bd = BlockDrag()
 ld = LineDrag()
 blockdb = []
 
-def create_block(text, left, right):
-    block = Block(canvas, text, left, right)
-    blockdb.append(block)
-    print(blockdb)
-
-# create buttons in the panel and bind to creating Block objects
-frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 0, 1))
+# create buttons in the panel and bind to creating Block objects with expected values
+frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [0], [1]))
 frontal_btn.grid(row=1,column=1)
-occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2))
+occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [0, 4]))
 occipital_btn.grid(row=2,column=1)
-temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3))
+temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
 temporal_btn.grid(row=3,column=1)
-parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0))
+parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
-
-
-# block1 = Block(canvas, "button 1", 3 , 2)
-# block2 = Block(canvas, "button 2", 2, 1)
-# block3 = Block(canvas, "button 3", 0, 1)
-# blockdb = [block1, block2, block3]
-
 
 # loop the root window to listen for events
 root.mainloop()
