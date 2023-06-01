@@ -83,7 +83,6 @@ class LineDrag():
         widget.bind('<ButtonPress-1>', self.on_start)
         widget.bind('<B1-Motion>', self.on_drag)
         widget.bind('<ButtonRelease-1>', self.on_release)
-        widget.bind('<Button-3>', self.line_click)
     
     def on_start(self, event):
         '''when port is clicked, create a line with start and end at the same location'''
@@ -117,8 +116,6 @@ class LineDrag():
             canvas.delete(lines[-1])
             lines.pop()
 
-    def line_click(self, event):
-        print("hi you")
 
 
     
