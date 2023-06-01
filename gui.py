@@ -83,6 +83,7 @@ class LineDrag():
         widget.bind('<ButtonPress-1>', self.on_start)
         widget.bind('<B1-Motion>', self.on_drag)
         widget.bind('<ButtonRelease-1>', self.on_release)
+        widget.bind('<Button-3>', self.line_click)
     
     def on_start(self, event):
         '''when port is clicked, create a line with start and end at the same location'''
@@ -115,6 +116,12 @@ class LineDrag():
         else:
             canvas.delete(lines[-1])
             lines.pop()
+
+    def line_click(self, event):
+        print("hi you")
+
+
+    
 
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     '''function to create blocks on button click'''
@@ -159,6 +166,7 @@ def find_widget(x,y):
             
 def normalize_line():
     pass
+
 
 # basic tkinter setup
 root = Tk()
@@ -212,6 +220,22 @@ temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_bloc
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
+
+#secondline = canvas.create_line(50,50,100, 100)
+#secondline = canvas.create_line(100, 300, 50, 20)
+#print("test", canvas.find_overlapping(50,50,50,50))
+
+def line_check(e):
+    print("howdytera")
+    x = e.x
+    y = e.y
+    print("test", canvas.find_overlapping(x,y,x,y))
+    print(x, y)
+    if x < 50 & y < 50:
+        print("in left corner")
+    
+
+canvas.bind("<Button-3>", line_check)
 
 # loop the root window to listen for events
 root.mainloop()
