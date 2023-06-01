@@ -111,6 +111,7 @@ def find_widget(x,y):
         y1 = block.frame.winfo_rooty()-root.winfo_rooty()
         x2 = x1+ block.frame.winfo_width()
         y2 = y1+ block.frame.winfo_height()
+        
     
 
         if x1 <= x <= x2 and y1 <= y <= y2:
@@ -118,11 +119,14 @@ def find_widget(x,y):
             leftx2 = leftx1 + block.leftport.winfo_width()
             lefty1 = block.leftport.winfo_rooty() - root.winfo_rooty()
             lefty2 = lefty1 + block.leftport.winfo_height()
+            
 
             rightx1 = block.rightport.winfo_rootx() - root.winfo_rootx()
             rightx2 = rightx1 + block.rightport.winfo_width()
             righty1 = block.rightport.winfo_rooty() - root.winfo_rooty()
             righty2 = righty1 + block.rightport.winfo_height()
+
+            print("middle xcoord", (rightx2 - rightx1)/2, " middle ycoord ", (righty2 - righty1)/2)
 
             if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:
                 return(block.leftport)
