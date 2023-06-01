@@ -1,42 +1,50 @@
 from tkinter import *
+import math
 
-def overlaps(x1, y1, x2, y2):
-    '''returns overlapping object ids in ovals dict'''
-    oval_list = [] # make a list to hold overlap objects
-    c_object = table.find_overlapping(x1, y1, x2, y2)
-    for k,v in ovals.items():  # iterate over ovals dict
-        if v in c_object:      # if the value of a key is in the overlap tuple
-            oval_list.append(k)# add the key to the list
-    return oval_list
+WIDTH = 400
+HEIGHT = 400
+CANVAS_MID_X = WIDTH/2
+CANVAS_MID_Y = HEIGHT/2
+SIDE = WIDTH/4
 
-a = Tk()
+root = Tk()
+canvas = Canvas(root, bg="black", height=HEIGHT, width=WIDTH)
+canvas.pack()
 
-# make a dictionary to hold object ids
-ovals = {}
+vertices = [
+    [CANVAS_MID_X - SIDE/10, CANVAS_MID_Y - SIDE/2],
+    [CANVAS_MID_X + SIDE/10, CANVAS_MID_Y - SIDE/2],
+    [CANVAS_MID_X + SIDE/10, CANVAS_MID_Y + SIDE/2],
+    [CANVAS_MID_X - SIDE/10, CANVAS_MID_Y + SIDE/2],
+]
 
-table = Canvas(a, width=500, height=300, bg='white')
-table.pack()
+def rotate(points, angle, center):
+    angle = math.radians(angle)
+    cos_val = math.cos(angle)
+    sin_val = math.sin(angle)
+    cx, cy = center
+    new_points = []
+    for x_old, y_old in points:
+        x_old -= cx
+        y_old -= cy
+        x_new = x_old * cos_val - y_old * sin_val
+        y_new = x_old * sin_val + y_old * cos_val
+        new_points.append([x_new + cx, y_new + cy])
+    return new_points
 
-# create oval_a and assign a name for it as a key and
-# a reference to it as a value in the ovals dict.
-# the key can be whatever you want to call it
-# create the other ovals as well, adding each to the dict
-# after it's made
-oval_a = table.create_oval(40, 40, 80, 80)
-ovals['oval_a'] = oval_a
+def draw_square(points, color="red"):
+    canvas.create_polygon(points, fill=color)
 
-oval_b = table.create_oval(60, 60, 120, 120)
-ovals['oval_b'] = oval_b
+def test():
+    old_vertices = [[150, 150], [250, 150], [250, 250], [150, 250]]
+    print ("vertices: ", vertices, "should be: ", old_vertices)
+    print (vertices == old_vertices)
 
-oval_c = table.create_oval(120, 120, 140, 140)
-ovals['oval_c'] = oval_c
+draw_square(vertices, "blue")
 
-# draw a rectangle
-rectangle = table.create_rectangle(30, 30, 70, 70)
+center = (CANVAS_MID_X, CANVAS_MID_Y)
+new_square = rotate(vertices, 30, center)
+test()
+draw_square(new_square)
 
-
-# print the return value of the overlaps function
-# using the coords of the rectangle as a bounding box
-print(overlaps(30,30,70,70))
-
-a.mainloop()
+mainloop()
