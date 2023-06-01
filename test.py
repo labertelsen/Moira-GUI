@@ -71,7 +71,8 @@ class LineDrag():
         
         if find_widget(lastx, lasty):
             linedb.append(canvas.coords(lines[-1]))
-            # normalize_line()
+            normalize_line(lastx,lasty)
+          
         else:
             canvas.delete(lines[-1])
             lines.pop()
@@ -84,10 +85,12 @@ canvas.grid(column = 0, row = 1)
 root.grid_propagate(False)
 canvas.grid_propagate(False)
 
+
+
 def find_widget(x,y):
     root.update()
     for block in blockdb:
-        x1 = block.frame.winfo_rootx()-root.winfo_rootx()
+        x1 = block.frame.winfo_rootx()-root.winfo_rootx()   
         y1 = block.frame.winfo_rooty()-root.winfo_rooty()
         x2 = x1+ block.frame.winfo_width()
         y2 = y1+ block.frame.winfo_height()
@@ -105,22 +108,51 @@ def find_widget(x,y):
             righty2 = righty1 + block.rightport.winfo_height()
 
             if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:
-                print('ended on left port')
+                print("ended on left port")
                 return(block)
             elif rightx1 <= x <= rightx2 and righty1 <= y <= righty2:
-                print('ended on right port')
+                print("ended on right port")
                 return(block)
             else:
                 return None
             
-def normalize_line():
-    pass
+def normalize_line(x,y):
+    for block in blockdb:
+        x1 = block.frame.winfo_rootx()-root.winfo_rootx()   
+        y1 = block.frame.winfo_rooty()-root.winfo_rooty()
+        x2 = x1+ block.frame.winfo_width()
+        y2 = y1+ block.frame.winfo_height()
+
+        if x1 <=  x <= x2 and y1 <= y <= y2:
+            leftx1 = block.leftport.winfo_rootx() - root.winfo_rootx()
+            leftx2 = leftx1 + block.leftport.winfo_width()
+            lefty1 = block.leftport.winfo_rooty() - root.winfo_rooty()
+            lefty2 = lefty1 + block.leftport.winfo_height()
+            
+            rightx1 = block.rightport.winfo_rootx() - root.winfo_rootx()
+            rightx2 = rightx1 + block.rightport.winfo_width()
+            righty1 = block.rightport.winfo_rooty() - root.winfo_rooty()
+            righty2 = righty1 + block.rightport.winfo_height()
+           
+           
+
+            if leftx1 <= x <= leftx2 and lefty1 <= y <= lefty2:   
+                canvas.coords(linedb[0], (rightx1-rightx2)/2+x1,(righty1-righty2)/2+y1,(leftx1-leftx2)/2+x2, (lefty1-lefty2)/2+y2)
+                return(block)
+            elif rightx1 <= x <= rightx2 and righty1 <= y <= righty2:
+                print("ended on right port")
+
+                return(block)
+            else:
+                return None
+    
         
 
 bd = BlockDrag()
 ld = LineDrag()
 block1 = Block(canvas)
 block2 = Block(canvas)
+
 blockdb = [block1, block2]
 
 root.mainloop()
