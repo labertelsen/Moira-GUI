@@ -241,12 +241,15 @@ def move_line(e):
     x = e.x
     y = e.y
     lineMove = canvas.find_overlapping(x,y,x,y)
-    print(lineMove)
-    moveline = lines.index(lineMove[0])
+    if lineMove:
+        print(lineMove)
+        moveline = lines.index(lineMove[0])
+        
+        print(moveline)
+        canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
+        
+        #canvas.bind("<B1-Motion>", canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y))
     
-    print(moveline)
-    canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
-    canvas.bind("<B1-Motion>", drag_line)
 
     """start_port = find_widget(canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1])
     end_port = find_widget(canvas.coords(lines[moveline])[2], canvas.coords(lines[moveline])[3])
@@ -270,7 +273,7 @@ def drag_line(e):
     
 
 canvas.bind("<Button-3>", line_delete)
-canvas.bind("<ButtonPress-1>", move_line)
+canvas.bind("<B1-Motion>", move_line)
 
 # loop the root window to listen for events
 root.mainloop()
