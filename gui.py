@@ -241,7 +241,9 @@ def move_line(e):
     lineMove = canvas.find_overlapping(x,y,x,y)
     print(lineMove)
     moveline = lines.index(lineMove[0])
-    canvas.coords(lines[-1], coords[0],coords[1], x, y)
+    print(moveline)
+    #print(lines[moveline][0], lines[moveline][1])
+    canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
     
 
 canvas.bind("<Button-3>", line_delete)
