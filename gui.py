@@ -220,7 +220,7 @@ parietal_btn.grid(row=4,column=1)
 
 
 
-def line_check(e):
+def line_delete(e):
     x = e.x
     y = e.y
     linetodelete = canvas.find_overlapping(x,y,x,y)
@@ -232,11 +232,10 @@ def line_check(e):
         removeline = lines.index(linetodelete[0])
         canvas.delete(lines[removeline])
         lines.remove(linetodelete[0])
-        
         print(lines)
     
 
-canvas.bind("<Button-3>", line_check)
+canvas.bind("<Button-3>", line_delete)
 
 # loop the root window to listen for events
 root.mainloop()
