@@ -251,6 +251,7 @@ def move_line(e):
         
         #canvas.bind("<B1-Motion>", canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y))
     
+    
 
     """start_port = find_widget(canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1])
     end_port = find_widget(canvas.coords(lines[moveline])[2], canvas.coords(lines[moveline])[3])
