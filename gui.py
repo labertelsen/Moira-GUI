@@ -225,15 +225,12 @@ def line_delete(e):
     x = e.x
     y = e.y
     lineDelete = canvas.find_overlapping(x,y,x,y)
-    print("test", lineDelete)
-    print(x, y)
     if lineDelete:
-        print(lineDelete[0]) 
-        print(lines)
+        
         removeline = lines.index(lineDelete[0])
         canvas.delete(lines[removeline])
         lines.remove(lineDelete[0])
-        print(lines)
+        
 
 moveline = None
 
