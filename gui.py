@@ -230,7 +230,8 @@ def line_check(e):
     print(x, y)
     print(linetodelete[0]) 
     print(lines)
-    canvas.delete(lines[0])
+    removeline = lines.index(linetodelete[0])
+    canvas.delete(lines[removeline])
     lines.remove(linetodelete[0])
     print(lines)
     
