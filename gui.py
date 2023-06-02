@@ -115,6 +115,7 @@ class LineDrag():
         else:
             canvas.delete(lines[-1])
             lines.pop()
+    
 
 
 
@@ -223,19 +224,28 @@ parietal_btn.grid(row=4,column=1)
 def line_delete(e):
     x = e.x
     y = e.y
-    linetodelete = canvas.find_overlapping(x,y,x,y)
-    print("test", linetodelete)
+    lineDelete = canvas.find_overlapping(x,y,x,y)
+    print("test", lineDelete)
     print(x, y)
-    if linetodelete:
-        print(linetodelete[0]) 
+    if lineDelete:
+        print(lineDelete[0]) 
         print(lines)
-        removeline = lines.index(linetodelete[0])
+        removeline = lines.index(lineDelete[0])
         canvas.delete(lines[removeline])
-        lines.remove(linetodelete[0])
+        lines.remove(lineDelete[0])
         print(lines)
+
+def move_line(e):
+    x = e.x
+    y = e.y
+    lineMove = canvas.find_overlapping(x,y,x,y)
+    print(lineMove)
+    moveline = lines.index(lineMove[0])
+    canvas.coords(lines[-1], coords[0],coords[1], x, y)
     
 
 canvas.bind("<Button-3>", line_delete)
+canvas.bind("<ButtonPress-1>", move_line)
 
 # loop the root window to listen for events
 root.mainloop()
