@@ -242,8 +242,21 @@ def move_line(e):
     print(lineMove)
     moveline = lines.index(lineMove[0])
     print(moveline)
-    #print(lines[moveline][0], lines[moveline][1])
     canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
+    """start_port = find_widget(canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1])
+    end_port = find_widget(canvas.coords(lines[moveline])[2], canvas.coords(lines[moveline])[3])
+    if start_port and end_port:
+        if start_port.type == end_port.type:
+            linedb.append(canvas.coords(lines[moveline]))
+            # normalize_line()
+        else:
+            # if line is not valid, remove visual line and line in memory
+            canvas.delete(lines[moveline])
+            lines.pop() 
+    else:
+        canvas.delete(lines[moveline])
+        lines.pop()"""
+    
     
 
 canvas.bind("<Button-3>", line_delete)
