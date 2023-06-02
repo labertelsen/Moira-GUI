@@ -218,9 +218,7 @@ temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
 
-#secondline = canvas.create_line(50,50,100, 100)
-#secondline = canvas.create_line(100, 300, 50, 20)
-#print("test", canvas.find_overlapping(50,50,50,50))
+
 
 def line_check(e):
     x = e.x
