@@ -235,14 +235,19 @@ def line_delete(e):
         lines.remove(lineDelete[0])
         print(lines)
 
+moveline = None
+
 def move_line(e):
     x = e.x
     y = e.y
     lineMove = canvas.find_overlapping(x,y,x,y)
     print(lineMove)
     moveline = lines.index(lineMove[0])
+    
     print(moveline)
     canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
+    canvas.bind("<B1-Motion>", drag_line)
+
     """start_port = find_widget(canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1])
     end_port = find_widget(canvas.coords(lines[moveline])[2], canvas.coords(lines[moveline])[3])
     if start_port and end_port:
@@ -256,6 +261,11 @@ def move_line(e):
     else:
         canvas.delete(lines[moveline])
         lines.pop()"""
+def drag_line(e):
+    x = e.x
+    y = e.y
+    print(moveline)
+    canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
     
     
 
