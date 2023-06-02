@@ -241,6 +241,7 @@ def move_line(e):
     x = e.x
     y = e.y
     lineMove = canvas.find_overlapping(x,y,x,y)
+
     if lineMove:
         print(lineMove)
         moveline = lines.index(lineMove[0])
