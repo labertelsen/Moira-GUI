@@ -220,7 +220,7 @@ parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block
 parietal_btn.grid(row=4,column=1)
 
 
-#this funcion checks when a line is clicked and deletes it both on the canvas and in lines list
+#this funcion checks when a line is clicked and deletes it both on the canvas and in lines
 def line_delete(e):
     x = e.x
     y = e.y
