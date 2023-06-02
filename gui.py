@@ -228,12 +228,14 @@ def line_check(e):
     linetodelete = canvas.find_overlapping(x,y,x,y)
     print("test", linetodelete)
     print(x, y)
-    print(linetodelete[0]) 
-    print(lines)
-    removeline = lines.index(linetodelete[0])
-    canvas.delete(lines[removeline])
-    lines.remove(linetodelete[0])
-    print(lines)
+    if linetodelete:
+        print(linetodelete[0]) 
+        print(lines)
+        removeline = lines.index(linetodelete[0])
+        canvas.delete(lines[removeline])
+        lines.remove(linetodelete[0])
+        
+        print(lines)
     
 
 canvas.bind("<Button-3>", line_check)
