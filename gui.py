@@ -68,6 +68,7 @@ class BlockDrag():
         parent = event.widget._nametowidget(parentName) 
         parent.startx = event.x
         parent.starty = event.y
+        
 
     def on_drag(self, event):
         '''when button is dragged, replace the button in the new location at every movement'''
@@ -78,13 +79,11 @@ class BlockDrag():
         parent.place(x=x, y=y)
 
     def on_rightclick(self,event):
-        print("you clicked")
         parentName = event.widget.winfo_parent()
-        print(parentName)
         parent = event.widget._nametowidget(parentName)
-        print(parent)
-        blockdb.remove(parentName)
-        #canvas.delete(parentName)
+        #blockdb.remove(parent)
+        parent.destroy()
+        
 
 
 
@@ -242,8 +241,6 @@ def line_delete(e):
         linedb.remove(linecheck)
         canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
-        
-        
         
         
 
