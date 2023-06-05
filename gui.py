@@ -242,21 +242,27 @@ parietal_btn.grid(row=4,column=1)
 
 
 #this funcion checks when a line is clicked and deletes it both on the canvas and in lines
-def line_delete(e):
+def on_rightline(e):
     x = e.x
     y = e.y
     m = Menu(root, tearoff = 0)
-    m.add_command(label ="Delete", command = lambda:parent.destroy())
+    lineDelete = canvas.find_overlapping(x,y,x,y)
+    m.add_command(label ="Delete", command = lambda:line_delete(x,y,lineDelete))
     m.add_command(label ="test1")
     m.add_command(label ="test2")
     m.add_command(label ="test3")
+    x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+    y = canvas.winfo_pointery()-canvas.winfo_rooty()
     m.tk_popup(x, y)
-    lineDelete = canvas.find_overlapping(x,y,x,y)
+    
+
+def line_delete(x,y, lineDelete):
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
         linedb.remove(linecheck)
         canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
+    
         
         
 
@@ -284,7 +290,7 @@ def drag_line(e):
     
     
 
-canvas.bind("<Button-3>", line_delete)
+canvas.bind("<Button-3>", on_rightline)
 canvas.bind("<B1-Motion>", move_line)
 
 # loop the root window to listen for events
