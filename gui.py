@@ -81,8 +81,18 @@ class BlockDrag():
     def on_rightclick(self,event):
         parentName = event.widget.winfo_parent()
         parent = event.widget._nametowidget(parentName)
+        x = parent.winfo_x() + event.x
+        y = parent.winfo_y() + event.y
+        m = Menu(root, tearoff = 0)
+        m.add_command(label ="Delete", command = lambda:parent.destroy())
+        m.add_command(label ="test1")
+        m.add_command(label ="test2")
+        m.add_command(label ="test3")
+        m.tk_popup(x, y)
+        
+        
         #blockdb.remove(parent)
-        parent.destroy()
+        #parent.destroy()
         
 
 
@@ -235,6 +245,12 @@ parietal_btn.grid(row=4,column=1)
 def line_delete(e):
     x = e.x
     y = e.y
+    m = Menu(root, tearoff = 0)
+    m.add_command(label ="Delete", command = lambda:parent.destroy())
+    m.add_command(label ="test1")
+    m.add_command(label ="test2")
+    m.add_command(label ="test3")
+    m.tk_popup(x, y)
     lineDelete = canvas.find_overlapping(x,y,x,y)
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
