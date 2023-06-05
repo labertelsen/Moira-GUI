@@ -80,8 +80,8 @@ class BlockDrag():
     def on_rightclick(self,event):
         parentName = event.widget.winfo_parent()
         parent = event.widget._nametowidget(parentName)
-        x = parent.winfo_x() + event.x
-        y = parent.winfo_y() + event.y
+        x = parent.winfo_x() - parent.startx + event.x
+        y = parent.winfo_y() - parent.starty + event.y
         m = Menu(root, tearoff = 0)
         m.add_command(label ="Delete", command = lambda:parent.destroy())
         m.add_command(label ="test1")
@@ -241,16 +241,17 @@ def on_rightline(e):
     y = e.y
     m = Menu(root, tearoff = 0)
     lineDelete = canvas.find_overlapping(x,y,x,y)
-    m.add_command(label ="Delete", command = lambda:line_delete(x,y,lineDelete))
-    m.add_command(label ="test1")
-    m.add_command(label ="test2")
-    m.add_command(label ="test3")
-    x = canvas.winfo_pointerx()-canvas.winfo_rootx()
-    y = canvas.winfo_pointery()-canvas.winfo_rooty()
-    m.tk_popup(x, y)
+    if lineDelete:
+        m.add_command(label ="Delete", command = lambda:line_delete(lineDelete))
+        m.add_command(label ="test1")
+        m.add_command(label ="test2")
+        m.add_command(label ="test3")
+        x = canvas.winfo_pointerx()
+        y = canvas.winfo_pointery()
+        m.tk_popup(x, y)
     
 
-def line_delete(x,y, lineDelete):
+def line_delete(lineDelete):
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
         linedb.remove(linecheck)
