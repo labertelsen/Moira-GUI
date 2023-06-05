@@ -88,6 +88,8 @@ class BlockDrag():
         m.add_command(label ="test2")
         m.add_command(label ="test3")
         m.tk_popup(x, y)
+        blockdb.remove(self)
+        print(blockdb)
 
     
 
