@@ -40,6 +40,7 @@ class Block():
             self.leftports[index].configure(bg=colors[lefttypes[index]])
             self.leftports[index].grid(column = 0, row = index)
             self.leftports[index].type = lefttypes[index]
+            self.leftports[index].connection = None
             ld.add_draggable(self.leftports[index])
 
         # create each right port and append to list
@@ -49,6 +50,7 @@ class Block():
             self.rightports[index].configure(bg=colors[righttypes[index]])
             self.rightports[index].grid(column = 2, row = index)
             self.rightports[index].type = righttypes[index]
+            self.rightports[index].connection = None
             ld.add_draggable(self.rightports[index])
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
@@ -107,6 +109,9 @@ class LineDrag():
         if start_port and end_port:
             if start_port.type == end_port.type:
                 linedb.append(canvas.coords(lines[-1]))
+                # start_port.connection = end_port
+                # end_port.connection = start_port
+                # print(start_port.connection, end_port.connection)
                 # normalize_line()
             else:
                 # if line is not valid, remove visual line and line in memory
