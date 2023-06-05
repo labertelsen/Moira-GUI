@@ -80,8 +80,8 @@ class BlockDrag():
     def on_rightclick(self,event):
         parentName = event.widget.winfo_parent()
         parent = event.widget._nametowidget(parentName)
-        x = parent.winfo_x() - parent.startx + event.x
-        y = parent.winfo_y() - parent.starty + event.y
+        x =  canvas.winfo_pointerx()
+        y =  canvas.winfo_pointery()
         m = Menu(root, tearoff = 0)
         m.add_command(label ="Delete", command = lambda:parent.destroy())
         m.add_command(label ="test1")
