@@ -60,6 +60,7 @@ class BlockDrag():
             '''Bind events to functions'''
             widget.bind('<ButtonPress-1>', self.on_start)
             widget.bind('<B1-Motion>', self.on_drag)
+            widget.bind("<Button-3>", self.on_rightclick)
 
     def on_start(self, event):
         '''when button is clicked, record the starting location in the parent'''
@@ -75,6 +76,17 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+
+    def on_rightclick(self,event):
+        print("you clicked")
+        parentName = event.widget.winfo_parent()
+        print(parentName)
+        parent = event.widget._nametowidget(parentName)
+        print(parent)
+        blockdb.remove(parentName)
+        #canvas.delete(parentName)
+
+
 
 class LineDrag():
     '''A class for allowing ports to react when clicked'''
@@ -226,10 +238,9 @@ def line_delete(e):
     y = e.y
     lineDelete = canvas.find_overlapping(x,y,x,y)
     if lineDelete:
-        removeline = lines.index(lineDelete[0])
-        linecheck = [canvas.coords(lines[removeline])[0], canvas.coords(lines[removeline])[1], canvas.coords(lines[removeline])[2], canvas.coords(lines[removeline])[3]]
+        linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
         linedb.remove(linecheck)
-        canvas.delete(lines[removeline])
+        canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
         
         
