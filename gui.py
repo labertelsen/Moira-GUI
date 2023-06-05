@@ -145,7 +145,7 @@ def find_widget(x,y):
 
                 # if mouse location is in the boundary, return the port
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
-                    normalize_line_nummbers(portx1,portx2,porty1,porty2)
+                    normalize_line_numbers(portx1,portx2,porty1,porty2)
                     return block.leftports[index]
             # if mouse is not in a left port, check each right port
             for index in range(len(block.rightports)):
@@ -156,7 +156,7 @@ def find_widget(x,y):
                 porty2 = porty1 + port.winfo_height()
                 
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
-                    normalize_line_nummbers(portx1,portx2,porty1,porty2)
+                    normalize_line_numbers(portx1,portx2,porty1,porty2)
                     return block.rightports[index]
                     
                     
@@ -164,7 +164,7 @@ def find_widget(x,y):
     return None
 
 normal_data = []            
-def normalize_line_nummbers(portx1,portx2,porty1,porty2):
+def normalize_line_numbers(portx1,portx2,porty1,porty2):
     print("printing port 1 ", portx1)
     normal_data.append(portx1)
     normal_data.append(porty1)
