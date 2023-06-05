@@ -257,6 +257,7 @@ def line_delete(lineDelete):
         linedb.remove(linecheck)
         canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
+        lineDelete= ()
         
 
 temp = None
