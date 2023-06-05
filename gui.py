@@ -60,6 +60,7 @@ class BlockDrag():
             '''Bind events to functions'''
             widget.bind('<ButtonPress-1>', self.on_start)
             widget.bind('<B1-Motion>', self.on_drag)
+            widget.bind("<Button-3>", self.on_rightclick)
 
     def on_start(self, event):
         '''when button is clicked, record the starting location in the parent'''
@@ -75,6 +76,20 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+    
+    def on_rightclick(self,event):
+        parentName = event.widget.winfo_parent()
+        parent = event.widget._nametowidget(parentName)
+        x = parent.winfo_x() + event.x
+        y = parent.winfo_y() + event.y
+        m = Menu(root, tearoff = 0)
+        m.add_command(label ="Delete", command = lambda:parent.destroy())
+        m.add_command(label ="test1")
+        m.add_command(label ="test2")
+        m.add_command(label ="test3")
+        m.tk_popup(x, y)
+
+    
 
 class LineDrag():
     '''A class for allowing ports to react when clicked'''
@@ -221,16 +236,25 @@ parietal_btn.grid(row=4,column=1)
 
 
 #this funcion checks when a line is clicked and deletes it both on the canvas and in lines
-def line_delete(e):
+def on_rightline(e):
     x = e.x
     y = e.y
+    m = Menu(root, tearoff = 0)
     lineDelete = canvas.find_overlapping(x,y,x,y)
+    m.add_command(label ="Delete", command = lambda:line_delete(x,y,lineDelete))
+    m.add_command(label ="test1")
+    m.add_command(label ="test2")
+    m.add_command(label ="test3")
+    x = canvas.winfo_pointerx()-canvas.winfo_rootx()
+    y = canvas.winfo_pointery()-canvas.winfo_rooty()
+    m.tk_popup(x, y)
+    
+
+def line_delete(x,y, lineDelete):
     if lineDelete:
-        
-        removeline = lines.index(lineDelete[0])
-        linecheck = [canvas.coords(lines[removeline])[0], canvas.coords(lines[removeline])[1], canvas.coords(lines[removeline])[2], canvas.coords(lines[removeline])[3]]
+        linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
         linedb.remove(linecheck)
-        canvas.delete(lines[removeline])
+        canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
         
 
@@ -267,7 +291,7 @@ def verify_line(e):
         lines.pop()
     
 
-canvas.bind("<Button-3>", line_delete)
+canvas.bind("<Button-3>", on_rightline)
 canvas.bind("<ButtonPress-1>", find_line)
 canvas.bind("<B1-Motion>", move_line)
 canvas.bind("<ButtonRelease-1>", verify_line)
