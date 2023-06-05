@@ -107,7 +107,7 @@ class LineDrag():
         if start_port and end_port:
             if start_port.type == end_port.type:
                 linedb.append(canvas.coords(lines[-1]))
-                # normalize_line()
+                normalize_line()
             else:
                 # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
@@ -142,8 +142,10 @@ def find_widget(x,y):
                 portx2 = portx1 + port.winfo_width()
                 porty1 = port.winfo_rooty() - root.winfo_rooty()
                 porty2 = porty1 + port.winfo_height()
+
                 # if mouse location is in the boundary, return the port
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
+                    normalize_line_nummbers(portx1,portx2,porty1,porty2)
                     return block.leftports[index]
             # if mouse is not in a left port, check each right port
             for index in range(len(block.rightports)):
@@ -152,13 +154,44 @@ def find_widget(x,y):
                 portx2 = portx1 + port.winfo_width()
                 porty1 = port.winfo_rooty() - root.winfo_rooty()
                 porty2 = porty1 + port.winfo_height()
+                
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
+                    normalize_line_nummbers(portx1,portx2,porty1,porty2)
                     return block.rightports[index]
+                    
+                    
     # returns None if mouse is in a block but NOT in a port, or is not in a block at all
     return None
-            
-def normalize_line():
-    pass
+
+normal_data = []            
+def normalize_line_nummbers(portx1,portx2,porty1,porty2):
+    print("printing port 1 ", portx1)
+    normal_data.append(portx1)
+    normal_data.append(porty1)
+    normal_data.append(portx2)
+    normal_data.append(porty2)
+    
+
+def normalize_line(): 
+   
+  # print("center of start:", (normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2)
+  # print("center of end:", (normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2)
+   print(canvas.coords(lines[-1]))
+   canvas.coords(lines[-1],normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2,(normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2
+   print(canvas.coords(lines[-1]))
+   normal_data.clear()
+ 
+
+
+
+
+    
+ 
+  
+
+
+
+
 
 # basic tkinter setup
 root = Tk()
