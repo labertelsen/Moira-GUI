@@ -233,36 +233,44 @@ def line_delete(e):
         canvas.delete(lines[removeline])
         lines.remove(lineDelete[0])
         
-        
-        
-        
 
-moveline = None
+temp = None
+
+def find_line(e):
+    x = e.x
+    y = e.y
+
+    overlaps = canvas.find_overlapping(x,y,x,y)
+    if overlaps:
+        global temp
+        temp = overlaps[0]
+
 
 def move_line(e):
     x = e.x
     y = e.y
-    lineMove = canvas.find_overlapping(x,y,x,y)
-    
-    if lineMove:
-        print(lineMove)
-        moveline = lines.index(lineMove[0])
-        
-        print(moveline)
-        canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
-        
-        #canvas.bind("<B1-Motion>", canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y))
+    canvas.coords(temp, canvas.coords(temp)[0], canvas.coords(temp)[1], x, y)
 
-def drag_line(e):
-    x = e.x
-    y = e.y
-    print(moveline)
-    canvas.coords(lines[moveline], canvas.coords(lines[moveline])[0], canvas.coords(lines[moveline])[1], x, y)
-    
+def verify_line(e):
+    start_port = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
+    end_port = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
+    if start_port and end_port:
+        if start_port.type == end_port.type:
+            linedb.append(canvas.coords(lines[-1]))
+            # normalize_line()
+        else:
+            # if line is not valid, remove visual line and line in memory
+            canvas.delete(lines[-1])
+            lines.pop() 
+    else:
+        canvas.delete(lines[-1])
+        lines.pop()
     
 
 canvas.bind("<Button-3>", line_delete)
+canvas.bind("<ButtonPress-1>", find_line)
 canvas.bind("<B1-Motion>", move_line)
+canvas.bind("<ButtonRelease-1>", verify_line)
 
 # loop the root window to listen for events
 root.mainloop()
