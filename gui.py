@@ -228,8 +228,13 @@ def line_delete(e):
     if lineDelete:
         
         removeline = lines.index(lineDelete[0])
+        linecheck = [canvas.coords(lines[removeline])[0], canvas.coords(lines[removeline])[1], canvas.coords(lines[removeline])[2], canvas.coords(lines[removeline])[3]]
+        linedb.remove(linecheck)
         canvas.delete(lines[removeline])
         lines.remove(lineDelete[0])
+        
+        
+        
         
 
 moveline = None
