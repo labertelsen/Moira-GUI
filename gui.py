@@ -274,22 +274,26 @@ def find_line(e):
 def move_line(e):
     x = e.x
     y = e.y
-    canvas.coords(temp, canvas.coords(temp)[0], canvas.coords(temp)[1], x, y)
+    if temp:
+        canvas.coords(temp, canvas.coords(temp)[0], canvas.coords(temp)[1], x, y)
 
 def verify_line(e):
-    start_port = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
-    end_port = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
-    if start_port and end_port:
-        if start_port.type == end_port.type:
-            linedb.append(canvas.coords(lines[-1]))
-            # normalize_line()
+    global temp
+    if temp:
+        start_port = find_widget(canvas.coords(temp)[0], canvas.coords(temp)[1])
+        end_port = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
+        if start_port and end_port:
+            if start_port.type == end_port.type:
+                linedb.append(canvas.coords(temp))
+                # normalize_line()
+            else:
+                # if line is not valid, remove visual line and line in memory
+                canvas.delete(temp)
+                lines.pop() 
         else:
-            # if line is not valid, remove visual line and line in memory
-            canvas.delete(lines[-1])
-            lines.pop() 
-    else:
-        canvas.delete(lines[-1])
-        lines.pop()
+            canvas.delete(temp)
+            lines.pop()
+        temp = None
     
 
 canvas.bind("<Button-3>", on_rightline)
