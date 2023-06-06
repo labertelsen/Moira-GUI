@@ -13,8 +13,11 @@ lines = []
 # permanent holding for line coordinates after line has been completed and validated
 linedb = []
 # colors for port styling
-# colors = ["gold", "red", "blue", "green"]
-colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
+colors = ["gold", "red", "blue", "green", "orange"]
+# colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
+# TODO
+temp = None
+
 
 class Block():
     '''A class for creating block objects'''
@@ -53,7 +56,21 @@ class Block():
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
+
+    # function for deleting blocks and scrubbing memory
+    def destroy(widget):
+        # given label, find parent
+        parentName = widget.winfo_parent()
+        parent = widget._nametowidget(parentName)
+        # search db for object with matching parent
+        for block in blockdb:
+            if block.frame == parent:
+                # remove block from block db
+                blockdb.remove(block)
+                # destroy block visual
+                parent.destroy()
         
+
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
     def add_draggable(self, widget):
@@ -78,21 +95,20 @@ class BlockDrag():
         parent.place(x=x, y=y)
     
     def on_rightclick(self,event):
+        widget = event.widget
         parentName = event.widget.winfo_parent()
         parent = event.widget._nametowidget(parentName)
-        x =  canvas.winfo_pointerx()
-        y =  canvas.winfo_pointery()
+        x = canvas.winfo_pointerx()
+        y = canvas.winfo_pointery()
         m = Menu(root, tearoff = 0)
-        m.add_command(label ="Delete", command = lambda:parent.destroy())
+        # on delete button, call destroy function in block class and pass the label of the clicked block
+        m.add_command(label ="Delete", command = partial(Block.destroy, widget))
         m.add_command(label ="test1")
         m.add_command(label ="test2")
         m.add_command(label ="test3")
         m.tk_popup(x, y)
-        #blockdb.remove(self)
-        #print(blockdb)
 
     
-
 class LineDrag():
     '''A class for allowing ports to react when clicked'''
     def add_draggable(self, widget):
@@ -134,15 +150,12 @@ class LineDrag():
             lines.pop()
     
 
-
-
-    
-
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     '''function to create blocks on button click'''
     # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     blockdb.append(block)
+    print(blockdb)
 
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
@@ -181,6 +194,62 @@ def find_widget(x,y):
             
 def normalize_line():
     pass
+
+#this funcion checks when a line is clicked and deletes it both on the canvas and in lines
+def on_rightline(e):
+    x = e.x
+    y = e.y
+    m = Menu(root, tearoff = 0)
+    lineDelete = canvas.find_overlapping(x,y,x,y)
+    if lineDelete:
+        m.add_command(label ="Delete", command = lambda:line_delete(lineDelete))
+        m.add_command(label ="test1")
+        m.add_command(label ="test2")
+        m.add_command(label ="test3")
+        x = canvas.winfo_pointerx()
+        y = canvas.winfo_pointery()
+        m.tk_popup(x, y)
+    
+def line_delete(lineDelete):
+    if lineDelete:
+        linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
+        linedb.remove(linecheck)
+        canvas.delete(lineDelete[0])
+        lines.remove(lineDelete[0])
+        lineDelete= ()
+        
+def find_line(e):
+    x = e.x
+    y = e.y
+
+    overlaps = canvas.find_overlapping(x,y,x,y)
+    if overlaps:
+        global temp
+        temp = overlaps[0]
+
+def move_line(e):
+    x = e.x
+    y = e.y
+    if temp:
+        canvas.coords(temp, canvas.coords(temp)[0], canvas.coords(temp)[1], x, y)
+
+def verify_line(e):
+    global temp
+    if temp:
+        start_port = find_widget(canvas.coords(temp)[0], canvas.coords(temp)[1])
+        end_port = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
+        if start_port and end_port:
+            if start_port.type == end_port.type:
+                linedb.append(canvas.coords(temp))
+                # normalize_line()
+            else:
+                # if line is not valid, remove visual line and line in memory
+                canvas.delete(temp)
+                lines.pop() 
+        else:
+            canvas.delete(temp)
+            lines.pop()
+        temp = None
 
 
 # basic tkinter setup
@@ -236,69 +305,7 @@ temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
 
-
-#this funcion checks when a line is clicked and deletes it both on the canvas and in lines
-def on_rightline(e):
-    x = e.x
-    y = e.y
-    m = Menu(root, tearoff = 0)
-    lineDelete = canvas.find_overlapping(x,y,x,y)
-    if lineDelete:
-        m.add_command(label ="Delete", command = lambda:line_delete(lineDelete))
-        m.add_command(label ="test1")
-        m.add_command(label ="test2")
-        m.add_command(label ="test3")
-        x = canvas.winfo_pointerx()
-        y = canvas.winfo_pointery()
-        m.tk_popup(x, y)
-    
-
-def line_delete(lineDelete):
-    if lineDelete:
-        linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
-        linedb.remove(linecheck)
-        canvas.delete(lineDelete[0])
-        lines.remove(lineDelete[0])
-        lineDelete= ()
-        
-
-temp = None
-
-def find_line(e):
-    x = e.x
-    y = e.y
-
-    overlaps = canvas.find_overlapping(x,y,x,y)
-    if overlaps:
-        global temp
-        temp = overlaps[0]
-
-
-def move_line(e):
-    x = e.x
-    y = e.y
-    if temp:
-        canvas.coords(temp, canvas.coords(temp)[0], canvas.coords(temp)[1], x, y)
-
-def verify_line(e):
-    global temp
-    if temp:
-        start_port = find_widget(canvas.coords(temp)[0], canvas.coords(temp)[1])
-        end_port = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
-        if start_port and end_port:
-            if start_port.type == end_port.type:
-                linedb.append(canvas.coords(temp))
-                # normalize_line()
-            else:
-                # if line is not valid, remove visual line and line in memory
-                canvas.delete(temp)
-                lines.pop() 
-        else:
-            canvas.delete(temp)
-            lines.pop()
-        temp = None
-    
-
+# bind canvas clicks to events
 canvas.bind("<Button-3>", on_rightline)
 canvas.bind("<ButtonPress-1>", find_line)
 canvas.bind("<B1-Motion>", move_line)
