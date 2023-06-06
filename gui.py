@@ -62,7 +62,7 @@ class Block():
         # given label, find parent
         parentName = widget.winfo_parent()
         parent = widget._nametowidget(parentName)
-        # search db for object with matching parent
+        # search db for object with matching frame
         for block in blockdb:
             if block.frame == parent:
                 # remove block from block db
@@ -155,7 +155,6 @@ def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     blockdb.append(block)
-    print(blockdb)
 
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
