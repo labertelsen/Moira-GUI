@@ -212,7 +212,7 @@ def on_rightline(e):
         #click is where the popup shows
         m.tk_popup(x, y)
 
-#this funcion deletes a line when input with the list of thing 
+#this funcion deletes a line when input with the list of clicked on items
 def line_delete(lineDelete):
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
