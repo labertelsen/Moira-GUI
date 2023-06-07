@@ -177,7 +177,7 @@ def normalize_line():
   # print("center of start:", (normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2)
   # print("center of end:", (normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2)
    print(canvas.coords(lines[-1]))
-   canvas.coords(lines[-1],normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2,(normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2
+   canvas.coords(lines[-1],(normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2,(normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2)
    print(canvas.coords(lines[-1]))
    normal_data.clear()
  
