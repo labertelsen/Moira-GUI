@@ -194,21 +194,25 @@ def find_widget(x,y):
 def normalize_line():
     pass
 
-#this funcion checks when a line is clicked and deletes it both on the canvas and in lines
+#this funcion checks when a line is clicked and creates a pop up for choices
 def on_rightline(e):
     x = e.x
     y = e.y
+    #creates the menu dropdown
     m = Menu(root, tearoff = 0)
+    #checks what is being clicked
     lineDelete = canvas.find_overlapping(x,y,x,y)
-    if lineDelete:
+    if lineDelete: 
         m.add_command(label ="Delete", command = lambda:line_delete(lineDelete))
         m.add_command(label ="test1")
         m.add_command(label ="test2")
         m.add_command(label ="test3")
         x = canvas.winfo_pointerx()
         y = canvas.winfo_pointery()
+        #click is where the popup shows
         m.tk_popup(x, y)
-    
+
+#this funcion deletes a line when input with the list of thing 
 def line_delete(lineDelete):
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
