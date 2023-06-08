@@ -5,6 +5,11 @@ from tkinter import Widget
 from functools import partial
 import math
 
+#TODO update linedb on line delete
+#TODO remove lines on block delete
+#TODO comment
+#TODO separate into files
+
 # variable setup
 # temporary holidng for coords of current line
 coords = [0, 0, 0, 0]
@@ -15,7 +20,6 @@ linedb = []
 # colors for port styling
 colors = ["gold", "red", "blue", "green", "orange"]
 # colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
-# TODO
 temp = None
 
 
@@ -69,6 +73,7 @@ class Block():
         # search db for object with matching frame
         for block in blockdb:
             if block.frame == parent:
+                #TODO destroy lines and scrub other blocks
                 # remove block from block db
                 blockdb.remove(block)
                 # destroy block visual
@@ -236,11 +241,13 @@ def normalize_on_drag(lineid, port, side):
         endx = canvas.coords(lineid)[2]
         endy = canvas.coords(lineid)[3]
         canvas.coords(lineid, (x1+x2)/2, (y1+y2)/2, endx, endy)
+        #TODO update linedb
     elif side == 'L':
         x1, y1, x2, y2 = find_position(port)
         startx = canvas.coords(lineid)[0]
         starty = canvas.coords(lineid)[1]
         canvas.coords(lineid, startx, starty, (x1+x2)/2, (y1+y2)/2)
+        #TODO update linedb
     
 
 #this funcion checks when a line is clicked and creates a pop up for choices
@@ -265,6 +272,7 @@ def on_rightline(e):
 def line_delete(lineDelete):
     if lineDelete:
         linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
+        print("LINECHECK: ", linecheck)
         linedb.remove(linecheck)
         canvas.delete(lineDelete[0])
         lines.remove(lineDelete[0])
