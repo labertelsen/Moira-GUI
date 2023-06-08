@@ -39,23 +39,27 @@ class Block():
         # create each left port and append to list
         self.leftports = []
         for index in range(leftcount):
-            self.leftports.append(Label(self.frame, width = 1))
-            self.leftports[index].configure(bg=colors[lefttypes[index]])
-            self.leftports[index].grid(column = 0, row = index)
-            self.leftports[index].type = lefttypes[index]
-            ld.add_draggable(self.leftports[index])
+            self.leftports.append(0)
+            self.leftports[index] = [Label(self.frame, width=1), []]
+            self.leftports[index][0].configure(bg=colors[lefttypes[index]])
+            self.leftports[index][0].grid(column = 0, row = index)
+            self.leftports[index][0].type = lefttypes[index]
+            # commented out to limit line flow
+            # ld.add_draggable(self.leftports[index])
 
         # create each right port and append to list
         self.rightports = []
         for index in range(rightcount):
-            self.rightports.append(Label(self.frame, width = 1))
-            self.rightports[index].configure(bg=colors[righttypes[index]])
-            self.rightports[index].grid(column = 2, row = index)
-            self.rightports[index].type = righttypes[index]
-            ld.add_draggable(self.rightports[index])
+            self.rightports.append(0)
+            self.rightports[index] = [Label(self.frame, width = 1), []]
+            self.rightports[index][0].configure(bg=colors[righttypes[index]])
+            self.rightports[index][0].grid(column = 2, row = index)
+            self.rightports[index][0].type = righttypes[index]
+            ld.add_draggable(self.rightports[index][0])
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
+
 
     # function for deleting blocks and scrubbing memory
     def destroy(widget):
@@ -93,6 +97,16 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+        for block in blockdb:
+            if block.frame == parent:
+                curr_block = block
+        for index in range(len(curr_block.leftports)):
+            port = curr_block.leftports[index]
+            port_connections = port[1]
+            for line in port_connections:
+                normalize_line(line, startport, endport)
+            print(port_connections)
+        
     
     def on_rightclick(self,event):
         widget = event.widget
@@ -135,12 +149,28 @@ class LineDrag():
 
     def on_release(self, event):
         '''when port is released, do some final checks before adding the line to memory. If line position is invalid, delete the line and remove it from memory'''
-        start_port = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
-        end_port = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
+        start_return = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
+        end_return = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
+        start_block = start_return[0]
+        start_port_index = start_return[1]
+        end_block = end_return[0]
+        end_port_index = end_return[1]
+        
+        start_port = start_block.rightports[start_port_index]
+        end_port = end_block.leftports[end_port_index]
+
+        if start_return[2] != 'R' and end_return[2] != 'L':
+            start_port = None
+            end_port = None
+
         if start_port and end_port:
-            if start_port.type == end_port.type:
+            if (start_port[0].type == end_port[0].type):
                 linedb.append(canvas.coords(lines[-1]))
-                # normalize_line()
+                
+                start_block.rightports[start_port_index][1].append(lines[-1])
+                end_block.leftports[end_port_index][1].append(lines[-1])
+
+                normalize_line(lines[-1], start_port[0], end_port[0])
             else:
                 # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
@@ -160,39 +190,42 @@ def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
     for block in blockdb:
-        # boundary values of the block
-        x1 = block.frame.winfo_rootx()-root.winfo_rootx()
-        y1 = block.frame.winfo_rooty()-root.winfo_rooty()
-        x2 = x1 + block.frame.winfo_width()
-        y2 = y1 + block.frame.winfo_height()
+
+        x1, y1, x2, y2 = find_position(block.frame)
     
         # if in port area
         if x1 <= x <= x2 and y1 <= y <= y2:
             # check each left port of the block
             for index in range(len(block.leftports)):
-                port = block.leftports[index]
-                # boundary values of the port
-                portx1 = port.winfo_rootx() - root.winfo_rootx()
-                portx2 = portx1 + port.winfo_width()
-                porty1 = port.winfo_rooty() - root.winfo_rooty()
-                porty2 = porty1 + port.winfo_height()
+                port = block.leftports[index][0]
+                portx1, porty1, portx2, porty2 = find_position(port)
                 # if mouse location is in the boundary, return the port
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
-                    return block.leftports[index]
+                    return block, index, 'L'
+                
             # if mouse is not in a left port, check each right port
             for index in range(len(block.rightports)):
-                port = block.rightports[index]
-                portx1 = port.winfo_rootx() - root.winfo_rootx()
-                portx2 = portx1 + port.winfo_width()
-                porty1 = port.winfo_rooty() - root.winfo_rooty()
-                porty2 = porty1 + port.winfo_height()
+                port = block.rightports[index][0]
+                portx1, porty1, portx2, porty2 = find_position(port)
                 if portx1 <= x <= portx2 and porty1 <= y <= porty2:
-                    return block.rightports[index]
+                    return block, index, 'R'
+                
     # returns None if mouse is in a block but NOT in a port, or is not in a block at all
     return None
+
+def find_position(widget):
+    x1 = widget.winfo_rootx()-root.winfo_rootx()
+    y1 = widget.winfo_rooty()-root.winfo_rooty()
+    x2 = x1 + widget.winfo_width()
+    y2 = y1 + widget.winfo_height()
+    return(x1, y1, x2, y2)
             
-def normalize_line():
-    pass
+def normalize_line(lineid, startport, endport):
+    startx1, starty1, startx2, starty2 = find_position(startport)
+    endx1, endy1, endx2, endy2 = find_position(endport)
+    print(startx1, starty1, startx2, starty2)
+    print(endx1, endy1, endx2, endy2)
+    canvas.coords(lineid, (startx1+startx2)/2, (starty1+starty2)/2, (endx1+endx2)/2, (endy1+endy2)/2)
 
 #this funcion checks when a line is clicked and creates a pop up for choices
 def on_rightline(e):
