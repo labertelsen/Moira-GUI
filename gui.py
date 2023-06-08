@@ -104,8 +104,13 @@ class BlockDrag():
             port = curr_block.leftports[index]
             port_connections = port[1]
             for line in port_connections:
-                normalize_line(line, startport, endport)
-            print(port_connections)
+                normalize_on_drag(line, port[0], 'L')
+        for index in range(len(curr_block.rightports)):
+            port = curr_block.rightports[index]
+            port_connections = port[1]
+            for line in port_connections:
+                normalize_on_drag(line, port[0], 'R')
+            
         
     
     def on_rightclick(self,event):
@@ -223,9 +228,20 @@ def find_position(widget):
 def normalize_line(lineid, startport, endport):
     startx1, starty1, startx2, starty2 = find_position(startport)
     endx1, endy1, endx2, endy2 = find_position(endport)
-    print(startx1, starty1, startx2, starty2)
-    print(endx1, endy1, endx2, endy2)
     canvas.coords(lineid, (startx1+startx2)/2, (starty1+starty2)/2, (endx1+endx2)/2, (endy1+endy2)/2)
+
+def normalize_on_drag(lineid, port, side):
+    if side == 'R':
+        x1, y1, x2, y2 = find_position(port)
+        endx = canvas.coords(lineid)[2]
+        endy = canvas.coords(lineid)[3]
+        canvas.coords(lineid, (x1+x2)/2, (y1+y2)/2, endx, endy)
+    elif side == 'L':
+        x1, y1, x2, y2 = find_position(port)
+        startx = canvas.coords(lineid)[0]
+        starty = canvas.coords(lineid)[1]
+        canvas.coords(lineid, startx, starty, (x1+x2)/2, (y1+y2)/2)
+    
 
 #this funcion checks when a line is clicked and creates a pop up for choices
 def on_rightline(e):
