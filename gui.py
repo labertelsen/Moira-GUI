@@ -40,7 +40,7 @@ class Block():
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
         self.label.grid(column=1,row=0, rowspan=total_height)
 
-        # create each left port and append to list
+        # create each left port and append to list, create inner list of line IDs for each port
         self.leftports = []
         for index in range(leftcount):
             self.leftports.append(0)
@@ -102,14 +102,18 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+        # lines follow block in drag
         for block in blockdb:
             if block.frame == parent:
                 curr_block = block
+        
+        # adjust lines on leftports
         for index in range(len(curr_block.leftports)):
             port = curr_block.leftports[index]
             port_connections = port[1]
             for line in port_connections:
                 normalize_on_drag(line, port[0], 'L')
+        # adjust lines on rightports
         for index in range(len(curr_block.rightports)):
             port = curr_block.rightports[index]
             port_connections = port[1]
@@ -169,6 +173,7 @@ class LineDrag():
         start_port = start_block.rightports[start_port_index]
         end_port = end_block.leftports[end_port_index]
 
+        # verify line is not output to output
         if start_return[2] != 'R' and end_return[2] != 'L':
             start_port = None
             end_port = None
@@ -177,6 +182,7 @@ class LineDrag():
             if (start_port[0].type == end_port[0].type):
                 linedb.append(canvas.coords(lines[-1]))
                 
+                # add lines to port inner list
                 start_block.rightports[start_port_index][1].append(lines[-1])
                 end_block.leftports[end_port_index][1].append(lines[-1])
 
@@ -224,6 +230,7 @@ def find_widget(x,y):
     return None
 
 def find_position(widget):
+    # returns boundary values of a widget
     x1 = widget.winfo_rootx()-root.winfo_rootx()
     y1 = widget.winfo_rooty()-root.winfo_rooty()
     x2 = x1 + widget.winfo_width()
@@ -231,11 +238,13 @@ def find_position(widget):
     return(x1, y1, x2, y2)
             
 def normalize_line(lineid, startport, endport):
+    # normalize both ends of line on release
     startx1, starty1, startx2, starty2 = find_position(startport)
     endx1, endy1, endx2, endy2 = find_position(endport)
     canvas.coords(lineid, (startx1+startx2)/2, (starty1+starty2)/2, (endx1+endx2)/2, (endy1+endy2)/2)
 
 def normalize_on_drag(lineid, port, side):
+    # normalize a single end of line on block drag
     if side == 'R':
         x1, y1, x2, y2 = find_position(port)
         endx = canvas.coords(lineid)[2]
