@@ -3,7 +3,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import Widget
 from functools import partial
-import math
+from tkinter import filedialog
+
 
 # variable setup
 # temporary holidng for coords of current line
@@ -15,7 +16,6 @@ linedb = []
 # colors for port styling
 # colors = ["gold", "red", "blue", "green"]
 colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
-
 
 
 class Block():
@@ -77,6 +77,7 @@ class BlockDrag():
         x = parent.winfo_x() - parent.startx + event.x
         y = parent.winfo_y() - parent.starty + event.y
         parent.place(x=x, y=y)
+
 
 class LineDrag():
     '''A class for allowing ports to react when clicked'''
@@ -164,10 +165,15 @@ def find_widget(x,y):
                     
     # returns None if mouse is in a block but NOT in a port, or is not in a block at all
     return None
+def find_block(x,y):
+        # Finds the block itself on the 
+        x1 = block.frame.winfo_rootx()-root.winfo_rootx()
+        y1 = block.frame.winfo_rooty()-root.winfo_rooty()
+        x2 = x1 + block.frame.winfo_width()
+        y2 = y1 + block.frame.winfo_height()
 
 normal_data = []            
 def normalize_line_numbers(portx1,portx2,porty1,porty2):
-    print("printing port 1 ", portx1)
     normal_data.append(portx1)
     normal_data.append(porty1)
     normal_data.append(portx2)
@@ -203,23 +209,8 @@ menubar = Menu(root)
 root.config(menu=menubar)
 
 
-# menu setup
-file = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='File', menu=file)
-file.add_command(label='Run', command=None)
-file.add_command(label='New', command=None)
-file.add_command(label='Save', command=None)
-file.add_command(label='Open', command=None)
-file.add_command(label='Close Window', command=None)
 
-edit = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='Edit', menu=edit)
 
-view = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='View', menu=view)
-
-help = Menu(menubar, tearoff=0)
-menubar.add_cascade(label='Help', menu=help)
 #Scroll Bar Setup
 y_scrollbar = Scrollbar(root, orient=VERTICAL, )
 y_scrollbar.grid(column=1,row=1, sticky="NS")
@@ -233,6 +224,7 @@ x_scrollbar.config(command = canvas.xview)
 
 
 
+
 # canvas setup
 canvas.grid(column=0, row=1, sticky="nswe", columnspan=1, rowspan=1)
 canvas.grid_propagate(False)
@@ -240,8 +232,39 @@ canvas.grid_propagate(False)
 panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
 panel.grid(column=2, row=1,sticky="nswe", columnspan=1, rowspan=1)
 panel.grid_propagate(False)
+#New File Set up
+def new_file():
+    canvas.delete("1.0",END)
+    root.title("Build A Better Grain")
 
+#File Save As
+def save_as_file(): 
+    canvas_data = filedialog.asksaveasfile(defaultextension=".*", initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI",title=r"Save Files",filetypes=(("CVS Files","*.cvs"),("Text Files","*.txt")))
+    
+    if canvas_data:
+        name = canvas_data
+        root.title("Build-a-Brain2")
+        #canvas_data = open(canvas_data,"w+")
+        #canvas_data.close
+        
+       
+file = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='File', menu=file)
+file.add_command(label='Run', command=None)
+file.add_command(label='New', command= lambda: new_file())
+file.add_command(label='Save', command=None)
+file.add_command(label="Save As",command=lambda: save_as_file())
+file.add_command(label='Open', command=None)
+file.add_command(label='Close Window', command=None)
 
+edit = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Edit', menu=edit)
+
+view = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='View', menu=view)
+
+help = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Help', menu=help)
 #Scroll Bar Setup
 y_scrollbar = Scrollbar(root, orient=VERTICAL)
 y_scrollbar.grid(column=1,row=1, sticky="NS")
@@ -251,10 +274,12 @@ x_scrollbar.grid(column=1,row=2, sticky="EW")
 x_scrollbar.config(command = canvas.xview)
 
 
+
 # setup class objects for enabling block reactivity
 bd = BlockDrag()
 ld = LineDrag()
 blockdb = []
+blockcoords = []
 
 # create buttons in the panel and bind to creating Block objects with expected values
 frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [0], [1]))
