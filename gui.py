@@ -16,6 +16,8 @@ linedb = []
 # colors = ["gold", "red", "blue", "green"]
 colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
 
+
+
 class Block():
     '''A class for creating block objects'''
     def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes):
@@ -173,11 +175,8 @@ def normalize_line_numbers(portx1,portx2,porty1,porty2):
     
 
 def normalize_line(): 
-   
-  # print("center of start:", (normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2)
-  # print("center of end:", (normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2)
    print(canvas.coords(lines[-1]))
-   canvas.coords(lines[-1],normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2,(normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2
+   canvas.coords(lines[-1],(normal_data[0]+normal_data[2])/2,(normal_data[1]+normal_data[3])/2,(normal_data[4]+normal_data[6])/2,(normal_data[5]+normal_data[7])/2)
    print(canvas.coords(lines[-1]))
    normal_data.clear()
  
@@ -203,6 +202,7 @@ root.columnconfigure(0,weight=1)
 menubar = Menu(root)
 root.config(menu=menubar)
 
+
 # menu setup
 file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
@@ -220,16 +220,36 @@ menubar.add_cascade(label='View', menu=view)
 
 help = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help)
+#Scroll Bar Setup
+y_scrollbar = Scrollbar(root, orient=VERTICAL, )
+y_scrollbar.grid(column=1,row=1, sticky="NS")
+x_scrollbar = Scrollbar(root, orient=HORIZONTAL)
+x_scrollbar.grid(column=1,row=2, sticky="EW")
+canvas = Canvas(root, borderwidth=5, relief="ridge", width=500, height=500,yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
+
+y_scrollbar.config( command = canvas.yview )
+x_scrollbar.config(command = canvas.xview)
+
+
+
 
 # canvas setup
-canvas = Canvas(root, borderwidth=5, relief="ridge", width=500, height=500)
 canvas.grid(column=0, row=1, sticky="nswe", columnspan=1, rowspan=1)
 canvas.grid_propagate(False)
-
 # panel setup
 panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
-panel.grid(column=1, row=1,sticky="nswe", columnspan=1, rowspan=1)
+panel.grid(column=2, row=1,sticky="nswe", columnspan=1, rowspan=1)
 panel.grid_propagate(False)
+
+
+#Scroll Bar Setup
+y_scrollbar = Scrollbar(root, orient=VERTICAL)
+y_scrollbar.grid(column=1,row=1, sticky="NS")
+y_scrollbar.config( command = canvas.yview )
+x_scrollbar = Scrollbar(root, orient=HORIZONTAL)
+x_scrollbar.grid(column=1,row=2, sticky="EW")
+x_scrollbar.config(command = canvas.xview)
+
 
 # setup class objects for enabling block reactivity
 bd = BlockDrag()
@@ -245,6 +265,8 @@ temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_bloc
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
+
+
 
 # loop the root window to listen for events
 root.mainloop()
