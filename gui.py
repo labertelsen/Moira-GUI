@@ -3,23 +3,23 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import Widget
 from functools import partial
-import math
 
-#TODO update linedb on line delete
-#TODO remove lines on block delete
+# changes: broke out find_widget and find_position, updated and integrated normalize functions (normalize and normalize on drag are different), removed linedb,
+# updated deletion processes (lines are scrubbed when attatched block is deleted), updated line_delete to scrub
+
 #TODO comment
 #TODO separate into files
 
 # variable setup
-# temporary holidng for coords of current line
+# temporary holding for coords of current line
 coords = [0, 0, 0, 0]
 # holding for line ids, used for updating line coords on the canvas in linedrag on_drag()
 lines = []
-# permanent holding for line coordinates after line has been completed and validated
-linedb = []
 # colors for port styling
 colors = ["gold", "red", "blue", "green", "orange"]
 # colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
+
+#TODO
 temp = None
 
 
@@ -48,10 +48,9 @@ class Block():
             self.leftports[index][0].configure(bg=colors[lefttypes[index]])
             self.leftports[index][0].grid(column = 0, row = index)
             self.leftports[index][0].type = lefttypes[index]
-            # commented out to limit line flow
-            # ld.add_draggable(self.leftports[index])
+            # not draggable to limit line flow
 
-        # create each right port and append to list
+        # create each right port and append to list, create inner list of line IDs for each port
         self.rightports = []
         for index in range(rightcount):
             self.rightports.append(0)
@@ -67,17 +66,53 @@ class Block():
 
     # function for deleting blocks and scrubbing memory
     def destroy(widget):
-        # given label, find parent
+        # given label, find parent frame
         parentName = widget.winfo_parent()
         parent = widget._nametowidget(parentName)
+        # space to hold lines attatched to deleted block, to be scrubbed
+        scrub_list = []
+
+        delete_block = None
         # search db for object with matching frame
         for block in blockdb:
             if block.frame == parent:
-                #TODO destroy lines and scrub other blocks
-                # remove block from block db
-                blockdb.remove(block)
-                # destroy block visual
-                parent.destroy()
+                delete_block = block
+                # for each left port
+                for index in range(len(block.leftports)):
+                    # get the inner list of line IDs
+                    lines_list = block.leftports[index][1]
+                    # for each line
+                    for i2 in range(len(lines_list)):
+                        line = lines_list[i2]
+                        # add line to scrub list and delete the line visual
+                        scrub_list.append(line)
+                        line_delete_on_block_delete(line)
+
+                # for each right port, do the same as above
+                for index in range(len(block.rightports)):
+                    lines_list = block.rightports[index][1]
+                    for i2 in range(len(lines_list)):
+                        line = lines_list[i2]
+                        scrub_list.append(line)
+                        line_delete_on_block_delete(line)
+
+        # check each block for any lines in the scrub list and remove
+        for block in blockdb:
+            for port in block.leftports:
+                lines_list = port[1]
+                for index in range(len(lines_list)):
+                    if lines_list[index] in scrub_list:
+                        lines_list.remove(lines_list[index])
+            for port in block.rightports:
+                lines_list = port[1]
+                for index in range(len(lines_list)):
+                    if lines_list[index] in scrub_list:
+                        lines_list.remove(lines_list[index])
+
+        # remove block from block db
+        blockdb.remove(delete_block)
+        # destroy block visual
+        parent.destroy()
         
 
 class BlockDrag():
@@ -106,6 +141,8 @@ class BlockDrag():
         for block in blockdb:
             if block.frame == parent:
                 curr_block = block
+            else:
+                pass
         
         # adjust lines on leftports
         for index in range(len(curr_block.leftports)):
@@ -136,7 +173,7 @@ class BlockDrag():
         m.add_command(label ="test3")
         m.tk_popup(x, y)
 
-    
+
 class LineDrag():
     '''A class for allowing ports to react when clicked'''
     def add_draggable(self, widget):
@@ -165,36 +202,40 @@ class LineDrag():
         '''when port is released, do some final checks before adding the line to memory. If line position is invalid, delete the line and remove it from memory'''
         start_return = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
         end_return = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
-        start_block = start_return[0]
-        start_port_index = start_return[1]
-        end_block = end_return[0]
-        end_port_index = end_return[1]
-        
-        start_port = start_block.rightports[start_port_index]
-        end_port = end_block.leftports[end_port_index]
+        if start_return and end_return:
+            start_block = start_return[0]
+            start_port_index = start_return[1]
+            end_block = end_return[0]
+            end_port_index = end_return[1]
+            
+            start_port = start_block.rightports[start_port_index]
+            end_port = end_block.leftports[end_port_index]
 
-        # verify line is not output to output
-        if start_return[2] != 'R' and end_return[2] != 'L':
-            start_port = None
-            end_port = None
+            # verify line is not output to output
+            if start_return[2] != 'R' and end_return[2] != 'L':
+                start_port = None
+                end_port = None
 
-        if start_port and end_port:
-            if (start_port[0].type == end_port[0].type):
-                linedb.append(canvas.coords(lines[-1]))
-                
-                # add lines to port inner list
-                start_block.rightports[start_port_index][1].append(lines[-1])
-                end_block.leftports[end_port_index][1].append(lines[-1])
+            if start_port and end_port:
+                if (start_port[0].type == end_port[0].type):
+                    # linedb.append(canvas.coords(lines[-1]))
+                    
+                    # add lines to port inner list
+                    start_block.rightports[start_port_index][1].append(lines[-1])
+                    end_block.leftports[end_port_index][1].append(lines[-1])
 
-                normalize_line(lines[-1], start_port[0], end_port[0])
+                    normalize_line(lines[-1], start_port[0], end_port[0])
+                else:
+                    # if line is not valid, remove visual line and line in memory
+                    canvas.delete(lines[-1])
+                    lines.pop() 
             else:
-                # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
-                lines.pop() 
+                lines.pop()
         else:
-            canvas.delete(lines[-1])
-            lines.pop()
-    
+                canvas.delete(lines[-1])
+                lines.pop()
+        
 
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     '''function to create blocks on button click'''
@@ -280,12 +321,28 @@ def on_rightline(e):
 #this funcion deletes a line when input with the list of clicked on items
 def line_delete(lineDelete):
     if lineDelete:
-        linecheck = [canvas.coords(lineDelete[0])[0], canvas.coords(lineDelete[0])[1], canvas.coords(lineDelete[0])[2], canvas.coords(lineDelete[0])[3]]
-        print("LINECHECK: ", linecheck)
-        linedb.remove(linecheck)
-        canvas.delete(lineDelete[0])
-        lines.remove(lineDelete[0])
+        line = lineDelete[0]
+        canvas.delete(line)
+        lines.remove(line)
+
+        # scrub blocks for line to be deleted
+        for block in blockdb:
+            for port in block.leftports:
+                lines_list = port[1]
+                for index in range(len(lines_list)):
+                    if lines_list[index] == line:
+                        lines_list.remove(line)
+            for port in block.rightports:
+                lines_list = port[1]
+                for index in range(len(lines_list)):
+                    if lines_list[index] == line:
+                        lines_list.remove(line)
+
         lineDelete= ()
+
+def line_delete_on_block_delete(line):
+    if line:
+        canvas.delete(line)
         
 def find_line(e):
     x = e.x
@@ -309,8 +366,7 @@ def verify_line(e):
         end_port = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
         if start_port and end_port:
             if start_port.type == end_port.type:
-                linedb.append(canvas.coords(temp))
-                # normalize_line()
+                pass
             else:
                 # if line is not valid, remove visual line and line in memory
                 canvas.delete(temp)
