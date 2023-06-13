@@ -270,6 +270,8 @@ def find_position(widget):
     x2 = x1 + widget.winfo_width()
     y2 = y1 + widget.winfo_height()
     return(x1, y1, x2, y2)
+
+
             
 def normalize_line(lineid, startport, endport):
     # normalize both ends of line on release
@@ -392,7 +394,11 @@ root = Tk()
 root.title("Build-a-Brain")
 root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
-
+#Save set up
+def save_file():
+    for i in blockdb:
+        pass
+        
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
 root.config(menu=menubar)
@@ -402,7 +408,7 @@ file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
 file.add_command(label='Run', command=None)
 file.add_command(label='New', command=None)
-file.add_command(label='Save', command=None)
+file.add_command(label='Save', command=lambda :save_file())
 file.add_command(label='Open', command=None)
 file.add_command(label='Close Window', command=None)
 
