@@ -3,6 +3,8 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import Widget
 from functools import partial
+from tkinter import filedialog
+import csv
 
 # variable setup
 # temporary holding for coords of current line
@@ -14,6 +16,8 @@ colors = ["gold", "red", "blue", "green", "orange"]
 
 # holding var for line on rightclick deletion
 temp = None
+# This holds the cordinates of the blocks 
+blockcoords = []
 
 
 class Block():
@@ -397,7 +401,17 @@ root.columnconfigure(0,weight=1)
 #Save set up
 def save_file():
     for i in blockdb:
-        pass
+        blockcoords.append(find_position(i.frame))
+   
+    data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Save File", filetypes = (("CSV Files","*.csv"),))
+   
+    if data_file:
+        for i in blockcoords:
+           #str(i)
+            data_file.writelines("Block Cordinates"+"  "+ "Line Cordinates"+"\n")
+        data_file.close()
+        blockcoords.clear()
+        
         
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
