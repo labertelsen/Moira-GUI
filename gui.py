@@ -89,18 +89,7 @@ class Block():
                         scrub_list.append(line)
                         line_delete_on_block_delete(line)
 
-        # check each block for any lines in the scrub list and remove
-        for block in blockdb:
-            for port in block.leftports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] in scrub_list:
-                        lines_list.remove(lines_list[index])
-            for port in block.rightports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] in scrub_list:
-                        lines_list.remove(lines_list[index])
+        scrub_line(scrub_list)
 
         # remove block from block db
         blockdb.remove(delete_block)
@@ -318,17 +307,7 @@ def line_delete(lineDelete):
         lines.remove(line)
 
         # scrub blocks for line to be deleted
-        for block in blockdb:
-            for port in block.leftports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] == line:
-                        lines_list.remove(line)
-            for port in block.rightports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] == line:
-                        lines_list.remove(line)
+        scrub_line([line])
 
         lineDelete= ()
 
@@ -378,13 +357,32 @@ def verify_line(e):
                     # if line is not valid, remove visual line and line in memory
                     canvas.delete(temp)
                     lines.pop() 
+                    scrub_line([temp])
             else:
                 canvas.delete(temp)
                 lines.pop()
+                scrub_line([temp])
         else:
                 canvas.delete(temp)
                 lines.pop()
+                scrub_line([temp])
         temp = None
+
+def scrub_line(IDlist):
+    '''given a list of line IDs, check each block for any lines that need to be scrubbed and remove them'''
+    for block in blockdb:
+        for port in block.leftports:
+            lines_list = port[1]
+            if len(lines_list) > 0:
+                for index in range(len(lines_list)):
+                    if lines_list[index] in IDlist:
+                        lines_list.remove(lines_list[index])
+        for port in block.rightports:
+            lines_list = port[1]
+            if len(lines_list) > 0:
+                for index in range(len(lines_list)):
+                    if lines_list[index] in IDlist:
+                        lines_list.remove(lines_list[index])
 
 
 # basic tkinter setup
