@@ -4,12 +4,6 @@ from tkinter import ttk
 from tkinter import Widget
 from functools import partial
 
-# changes: broke out find_widget and find_position, updated and integrated normalize functions (normalize and normalize on drag are different), removed linedb,
-# updated deletion processes (lines are scrubbed when attatched block is deleted), updated line_delete to scrub
-
-#TODO comment
-#TODO separate into files
-
 # variable setup
 # temporary holding for coords of current line
 coords = [0, 0, 0, 0]
@@ -17,9 +11,8 @@ coords = [0, 0, 0, 0]
 lines = []
 # colors for port styling
 colors = ["gold", "red", "blue", "green", "orange"]
-# colors = ['red', 'hot pink', 'maroon', 'violet red', 'pale violet red']
 
-#TODO
+# holding var for line on rightclick deletion
 temp = None
 
 
@@ -291,13 +284,12 @@ def normalize_on_drag(lineid, port, side):
         endx = canvas.coords(lineid)[2]
         endy = canvas.coords(lineid)[3]
         canvas.coords(lineid, (x1+x2)/2, (y1+y2)/2, endx, endy)
-        #TODO update linedb
+
     elif side == 'L':
         x1, y1, x2, y2 = find_position(port)
         startx = canvas.coords(lineid)[0]
         starty = canvas.coords(lineid)[1]
         canvas.coords(lineid, startx, starty, (x1+x2)/2, (y1+y2)/2)
-        #TODO update linedb
     
 
 #this funcion checks when a line is clicked and creates a pop up for choices
@@ -362,18 +354,36 @@ def move_line(e):
 def verify_line(e):
     global temp
     if temp:
-        start_port = find_widget(canvas.coords(temp)[0], canvas.coords(temp)[1])
-        end_port = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
-        if start_port and end_port:
-            if start_port.type == end_port.type:
-                pass
+        start_return = find_widget(canvas.coords(temp)[0], canvas.coords(temp)[1])
+        end_return = find_widget(canvas.coords(temp)[2], canvas.coords(temp)[3])
+        
+        if start_return and end_return:
+            start_block = start_return[0]
+            start_port_index = start_return[1]
+            end_block = end_return[0]
+            end_port_index = end_return[1]
+            
+            start_port = start_block.rightports[start_port_index]
+            end_port = end_block.leftports[end_port_index]
+
+            # verify line is not output to output
+            if start_return[2] != 'R' and end_return[2] != 'L':
+                start_port = None
+                end_port = None
+
+            if start_port and end_port:
+                if start_port[0].type == end_port[0].type:
+                    pass
+                else:
+                    # if line is not valid, remove visual line and line in memory
+                    canvas.delete(temp)
+                    lines.pop() 
             else:
-                # if line is not valid, remove visual line and line in memory
                 canvas.delete(temp)
-                lines.pop() 
+                lines.pop()
         else:
-            canvas.delete(temp)
-            lines.pop()
+                canvas.delete(temp)
+                lines.pop()
         temp = None
 
 
