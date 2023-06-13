@@ -10,7 +10,7 @@ coords = [0, 0, 0, 0]
 # holding for line ids, used for updating line coords on the canvas in linedrag on_drag()
 lines = []
 # colors for port styling
-colors = ["gold", "red", "blue", "green", "orange"]
+colors = ["gray", "gold", "red", "blue", "green", "orange"]
 
 # holding var for line on rightclick deletion
 temp = None
@@ -32,6 +32,9 @@ class Block():
         # creates the center portion of the block
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
         self.label.grid(column=1,row=0, rowspan=total_height)
+
+        # set text as attribute for tracing
+        self.text = lobe_name
 
         # create each left port and append to list, create inner list of line IDs for each port
         self.leftports = []
@@ -210,7 +213,7 @@ class LineDrag():
                 end_port = None
 
             if start_port and end_port:
-                if (start_port[0].type == end_port[0].type):
+                if (start_port[0].type == end_port[0].type) or (start_port[0].type == 0) or (end_port[0].type == 0):
                     # linedb.append(canvas.coords(lines[-1]))
                     
                     # add lines to port inner list
@@ -235,6 +238,8 @@ def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     blockdb.append(block)
+    if text == "Start Point" or text == "End Point":
+        return block
 
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
@@ -372,7 +377,7 @@ def verify_line(e):
                 end_port = None
 
             if start_port and end_port:
-                if start_port[0].type == end_port[0].type:
+                if (start_port[0].type == end_port[0].type) or (start_port[0].type == 0) or (end_port[0].type == 0):
                     pass
                 else:
                     # if line is not valid, remove visual line and line in memory
@@ -385,6 +390,45 @@ def verify_line(e):
                 canvas.delete(temp)
                 lines.pop()
         temp = None
+
+def on_run():
+    print("ran!")
+    print(trace(startpoint))
+
+
+def on_abort():
+    print("aborted!")
+
+def trace(block_to_trace):
+    curr = block_to_trace
+    
+    # for each output port
+    for index in range(len(curr.rightports)):
+        # for each line in port
+        for index2 in range(len(curr.rightports[index][1])):
+            # get the line
+            line = curr.rightports[index][1][index2]
+            # search each block for the other end of the line in inputs
+            for block in blockdb:
+                for port in block.leftports:
+                    lines_list = port[1]
+                    for index in range(len(lines_list)):
+                        # when found line
+                        if lines_list[index] == line:
+                            next = block  
+                            if block.text == 'End Point':
+                                return('found')
+                            else:
+                                return(trace(next)) 
+                            # repeat with block at other end of line                         
+
+                # for port in block.rightports:
+                #     lines_list = port[1]
+                #     for index in range(len(lines_list)):
+                #         if lines_list[index] == line:
+                #             next = block
+                #             trace = next
+
 
 
 # basic tkinter setup
@@ -406,6 +450,12 @@ file.add_command(label='Save', command=None)
 file.add_command(label='Open', command=None)
 file.add_command(label='Close Window', command=None)
 
+run = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Run', menu=run)
+run.add_command(label='Run', command=on_run)
+# run.add_command(label='Pause', command=None)
+run.add_command(label='Abort', command=on_abort)
+
 edit = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Edit', menu=edit)
 
@@ -414,6 +464,7 @@ menubar.add_cascade(label='View', menu=view)
 
 help = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help)
+
 
 # canvas setup
 canvas = Canvas(root, borderwidth=5, relief="ridge", width=500, height=500)
@@ -431,14 +482,17 @@ ld = LineDrag()
 blockdb = []
 
 # create buttons in the panel and bind to creating Block objects with expected values
-frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [0], [1]))
+frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
 frontal_btn.grid(row=1,column=1)
-occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [0, 4]))
+occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
 occipital_btn.grid(row=2,column=1)
 temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
+
+startpoint = create_block("Start Point", 0, 1, [], [0])
+endpoint = create_block("End Point", 1, 0, [0], [])
 
 # bind canvas clicks to events
 canvas.bind("<Button-3>", on_rightline)
