@@ -19,15 +19,24 @@ temp = None
 # This holds the cordinates of the blocks 
 blockcoords = []
 
+blockinformation = []
+
 
 class Block():
     '''A class for creating block objects'''
     def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes):
         ''' takes name of parent widget (canvas) and the text of the button (lobe name)'''
+        
+        self.title = lobe_name
+        self.leftcount = leftcount 
+        self.rightcount = rightcount
+        self.lefttypes = lefttypes
+        self.rightypes = righttypes 
+        
 
         # amount of rows required for block formatting
         total_height = (leftcount if leftcount >= rightcount else rightcount)
-
+    
         # creates a frame that holds the entire block
         self.frame = ttk.Frame(parent)
         #places the block in the left top corner
@@ -110,7 +119,9 @@ class Block():
         blockdb.remove(delete_block)
         # destroy block visual
         parent.destroy()
-        
+    
+    def values_of_block(self):
+        return (self.title,self.leftcount,self.rightcount, self.lefttypes, self.rightypes)      
 
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
@@ -400,15 +411,18 @@ root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
 #Save set up
 def save_file():
+
+    for i in blockdb:
+        block_info =  i.values_of_block()
+        blockinformation.append(block_info)
     for i in blockdb:
         blockcoords.append(find_position(i.frame))
-   
     data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Save File", filetypes = (("CSV Files","*.csv"),))
    
     if data_file:
-        for i in blockcoords:
+        for i in range(len(blockcoords)):
            #str(i)
-            data_file.writelines("Block Cordinates"+"  "+ "Line Cordinates"+"\n")
+           data_file.writelines(str(blockcoords[i])+ " "+ str(blockinformation[i]) + "\n")
         data_file.close()
         blockcoords.clear()
         
@@ -465,6 +479,7 @@ canvas.bind("<Button-3>", on_rightline)
 canvas.bind("<ButtonPress-1>", find_line)
 canvas.bind("<B1-Motion>", move_line)
 canvas.bind("<ButtonRelease-1>", verify_line)
+#reading out details of blocks
 
 # loop the root window to listen for events
 root.mainloop()
