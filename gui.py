@@ -4,6 +4,8 @@ from tkinter import ttk
 from tkinter import Widget
 from functools import partial
 
+#TODO integrate line class
+
 # variable setup
 # temporary holding for coords of current line
 coords = [0, 0, 0, 0]
@@ -15,6 +17,8 @@ colors = ["gold", "red", "blue", "green", "orange"]
 # holding var for line on rightclick deletion
 temp = None
 
+blockdb = []
+linedb = []
 
 class Block():
     '''A class for creating block objects'''
@@ -56,6 +60,8 @@ class Block():
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
 
+        blockdb.append(self)
+
 
     # function for deleting blocks and scrubbing memory
     def destroy(widget):
@@ -95,7 +101,16 @@ class Block():
         blockdb.remove(delete_block)
         # destroy block visual
         parent.destroy()
-        
+
+class Line():
+    def __init__(self, id, start_block, start_port, end_block, end_port):
+        self.id = id
+        self.start_block = start_block
+        self.start_port = start_port
+        self.end_block = end_block
+        self.end_port = end_port
+
+        linedb.append(self)
 
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
@@ -170,7 +185,10 @@ class LineDrag():
         y = canvas.winfo_pointery()-canvas.winfo_rooty()
         coords[0] = x
         coords[1] = y
-        lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1], width=3))
+        new_line_id = canvas.create_line(coords[0],coords[1],coords[0], coords[1], width=3)
+        create_line(new_line_id, None, None, None, None)
+        lines.append(new_line_id)
+
 
     def on_drag(self, event):
         '''when port is dragged, edit the existing line from the startpoint to the mouse's current location'''
@@ -193,38 +211,43 @@ class LineDrag():
             start_port = start_block.rightports[start_port_index]
             end_port = end_block.leftports[end_port_index]
 
+        else:
+            start_port = None
+            end_port = None
             # verify line is not output to output
-            if start_return[2] != 'R' and end_return[2] != 'L':
-                start_port = None
-                end_port = None
 
-            if start_port and end_port:
-                if (start_port[0].type == end_port[0].type):
-                    # linedb.append(canvas.coords(lines[-1]))
-                    
-                    # add lines to port inner list
-                    start_block.rightports[start_port_index][1].append(lines[-1])
-                    end_block.leftports[end_port_index][1].append(lines[-1])
+        if start_return[2] != 'R' and end_return[2] != 'L':
+            start_port = None
+            end_port = None
 
-                    normalize_line(lines[-1], start_port[0], end_port[0])
-                else:
-                    # if line is not valid, remove visual line and line in memory
-                    canvas.delete(lines[-1])
-                    lines.pop() 
+        if start_port and end_port:
+            # if start port and end port types match
+            if (start_port[0].type == end_port[0].type):                
+                # add lines to port inner list
+                start_block.rightports[start_port_index][1].append(lines[-1])
+                end_block.leftports[end_port_index][1].append(lines[-1])
+                linedb[-1].start_block = start_block
+                linedb[-1].start_port = start_port
+                linedb[-1].end_block = end_block
+                linedb[-1].end_port = end_port
+                normalize_line(lines[-1], start_port[0], end_port[0])
             else:
+                # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
                 lines.pop()
         else:
-                canvas.delete(lines[-1])
-                lines.pop()
+            canvas.delete(lines[-1])
+            lines.pop()
         
 
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
-    '''function to create blocks on button click'''
-    # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
+    '''function to create blocks'''
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
-    blockdb.append(block)
 
+def create_line(id, start_block, start_port, end_block, end_port):
+    '''function to create lines'''
+    line = Line(id, start_block, start_port, end_block, end_port)
+                   
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
@@ -426,7 +449,6 @@ panel.grid_propagate(False)
 # setup class objects for enabling block reactivity
 bd = BlockDrag()
 ld = LineDrag()
-blockdb = []
 
 # create buttons in the panel and bind to creating Block objects with expected values
 frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [0], [1]))
