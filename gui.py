@@ -251,6 +251,9 @@ def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     blockdb.append(block)
 
+# Place Block function
+
+
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
@@ -410,7 +413,7 @@ root.title("Build-a-Brain")
 root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
 #Save set up
-def save_file():
+def save_as_file():
     merger = []
     for i in blockdb:
         block_info =  i.values_of_block()
@@ -439,7 +442,25 @@ def save_file():
 #open file set up and placing blocks 
 def open_file():
       pass
-        
+      data_file = filedialog.askopenfile(mode='r',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Open File", filetypes = (("CSV Files","*.csv"),))
+      #data_file = open(data_file, "r")
+      #content  =  data_file.read()
+      #print(content)
+
+      if data_file:
+          data_file_reader = csv.reader(data_file)
+          for i in data_file_reader:
+              if i == []:
+                  continue
+              print(i)
+
+              
+      data_file.close()
+
+
+
+      
+
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
 root.config(menu=menubar)
@@ -449,7 +470,8 @@ file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
 file.add_command(label='Run', command=None)
 file.add_command(label='New', command=None)
-file.add_command(label='Save', command=lambda :save_file())
+file.add_command(label='Save As', command=lambda :save_as_file())
+file.add_command(label="Save",command=None)
 file.add_command(label='Open', command=lambda : open_file())
 file.add_command(label='Close Window', command=None)
 
