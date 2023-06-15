@@ -411,21 +411,34 @@ root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
 #Save set up
 def save_file():
-
+    merger = []
     for i in blockdb:
         block_info =  i.values_of_block()
         blockinformation.append(block_info)
+
     for i in blockdb:
         blockcoords.append(find_position(i.frame))
+
+    for i in range(len(blockinformation)):
+        merger.append(blockinformation[i])
+        merger.append(blockcoords[i])
+
     data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Save File", filetypes = (("CSV Files","*.csv"),))
-   
+    
     if data_file:
-        for i in range(len(blockcoords)):
-           #str(i)
-           data_file.writelines(str(blockcoords[i])+ " "+ str(blockinformation[i]) + "\n")
-        data_file.close()
+        data_file_writer =  csv.writer(data_file, delimiter=',')
+
+        for i in range(1,len(merger),2):
+            data_file_writer.writerow(merger[i]+merger[i-1])         
+
+        merger.clear()
         blockcoords.clear()
-        
+        blockinformation.clear() 
+        data_file.close()
+
+#open file set up and placing blocks 
+def open_file():
+      pass
         
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
@@ -437,7 +450,7 @@ menubar.add_cascade(label='File', menu=file)
 file.add_command(label='Run', command=None)
 file.add_command(label='New', command=None)
 file.add_command(label='Save', command=lambda :save_file())
-file.add_command(label='Open', command=None)
+file.add_command(label='Open', command=lambda : open_file())
 file.add_command(label='Close Window', command=None)
 
 edit = Menu(menubar, tearoff=0)
