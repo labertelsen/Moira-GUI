@@ -106,13 +106,12 @@ class Block():
         parent.destroy()
 
 class Line():
-    def __init__(self, id, start_block, start_port, end_block, end_port):
+    def __init__(self, id, start_block, start_port_index, end_block, end_port_index):
         self.id = id
         self.start_block = start_block
-        self.start_port = start_port
+        self.start_port_index = start_port_index
         self.end_block = end_block
-        self.end_port = end_port
-
+        self.end_port_index = end_port_index
         linedb.append(self)
 
 class BlockDrag():
@@ -202,7 +201,6 @@ class LineDrag():
         canvas.coords(lines[-1], coords[0],coords[1], x, y)
 
     def on_release(self, event):
-        print('release')
         '''when port is released, do some final checks before adding the line to memory. If line position is invalid, delete the line and remove it from memory'''
         start_return = find_widget(canvas.coords(lines[-1])[0], canvas.coords(lines[-1])[1])
         end_return = find_widget(canvas.coords(lines[-1])[2], canvas.coords(lines[-1])[3])
@@ -230,9 +228,9 @@ class LineDrag():
                 start_block.rightports[start_port_index][1].append(lines[-1])
                 end_block.leftports[end_port_index][1].append(lines[-1])
                 linedb[-1].start_block = start_block
-                linedb[-1].start_port = start_port
+                linedb[-1].start_port_index = start_port_index
                 linedb[-1].end_block = end_block
-                linedb[-1].end_port = end_port
+                linedb[-1].end_port_index = end_port_index
                 normalize_line(lines[-1], start_port[0], end_port[0])
             else:
                 # if line is not valid, remove visual line and line in memory
@@ -246,8 +244,7 @@ class LineDrag():
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     '''function to create blocks'''
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
-    if text == "Start Point" or text == "End Point":
-        return block
+    return block
 
 def create_line(id, start_block, start_port, end_block, end_port):
     '''function to create lines'''
@@ -351,6 +348,8 @@ def find_line(e):
     if overlaps:
         global temp
         temp = overlaps[0]
+    else:
+        temp = None
 
 def move_line(e):
     x = e.x
@@ -396,8 +395,13 @@ def verify_line(e):
                 scrub_line([temp])
         temp = None
 
+def get_line_from_id(id):
+    for line in linedb:
+        if line.id == id:
+            return line
+
 def on_run():
-    print("ran!")
+    print("ran")
     print(trace(startpoint))
 
 
@@ -406,33 +410,18 @@ def on_abort():
 
 def trace(block_to_trace):
     curr = block_to_trace
-    
-    # for each output port
-    for index in range(len(curr.rightports)):
-        # for each line in port
-        for index2 in range(len(curr.rightports[index][1])):
-            # get the line
-            line = curr.rightports[index][1][index2]
-            # search each block for the other end of the line in inputs
-            for block in blockdb:
-                for port in block.leftports:
-                    lines_list = port[1]
-                    for index in range(len(lines_list)):
-                        # when found line
-                        if lines_list[index] == line:
-                            next = block  
-                            if block.text == 'End Point':
-                                return('found')
-                            else:
-                                return(trace(next)) 
-                            # repeat with block at other end of line                         
-
-                # for port in block.rightports:
-                #     lines_list = port[1]
-                #     for index in range(len(lines_list)):
-                #         if lines_list[index] == line:
-                #             next = block
-                #             trace = next
+    print("PASSING THRU: ", curr.text)
+    for portindex in range(len(curr.rightports)):
+        print("PORT NUM: ", portindex)
+        for lineindex in range(len(curr.rightports[portindex][1])):
+            print("LINE NUM: ", lineindex)
+            line = get_line_from_id(curr.rightports[portindex][1][lineindex])
+            next_block = line.end_block
+            next_port = next_block.leftports[line.end_port_index]
+            if next_block.text == 'End Point':
+                return('end')
+            else:
+                trace(next_block)
 
 def scrub_line(IDlist):
     '''given a list of line IDs, check each block for any lines that need to be scrubbed and remove them'''
@@ -443,12 +432,15 @@ def scrub_line(IDlist):
                 for index in range(len(lines_list)):
                     if lines_list[index] in IDlist:
                         lines_list.remove(lines_list[index])
-        for port in block.rightports:
+        for index in range(len(block.rightports)):
+            port = block.rightports[index]
             lines_list = port[1]
             if len(lines_list) > 0:
-                for index in range(len(lines_list)):
-                    if lines_list[index] in IDlist:
-                        lines_list.remove(lines_list[index])
+                for index2 in range(len(lines_list)):
+                    if index2 in range(len(lines_list)):
+                        if lines_list[index2] in IDlist:
+                            lines_list.remove(lines_list[index2])
+                        
 
 
 # basic tkinter setup
