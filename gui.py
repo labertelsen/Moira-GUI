@@ -22,6 +22,8 @@ blockcoords = []
 blockinformation = []
 
 
+
+
 class Block():
     '''A class for creating block objects'''
     def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes):
@@ -251,7 +253,50 @@ def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     blockdb.append(block)
 
+
 # Place Block function
+def create_from_file(reference):
+    for container in reference:
+        for ele in container:
+            if ele.isdigit():
+                swap_location = container.index(ele)
+                container[swap_location] = int(container[swap_location])
+
+        x1 = container[0]
+        y1 = container[1]
+        x2 = container[2]
+        y2 = container[3]
+        x = (x1+x2)/2
+        y= (y1+y2)/2
+        text = container[4]
+        leftcnt = container[5]
+        rightcnt = container[6]
+        pre_lefttypes =  list(container[7].split(" "))
+        lefttypes = []
+        pre_righttypes = list(container[8].split(" "))
+        righttypes = []
+        for primary in pre_lefttypes:            
+            for ele in primary:
+                if ele.isdigit():
+                    lefttypes.append(int(ele))
+        if pre_righttypes.count('[]')>0:
+            righttypes = []
+        else:   
+             for primary in pre_righttypes:            
+                 for ele in primary:
+                    if ele.isdigit():
+                        righttypes.append(int(ele))
+
+        block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x,y)            
+       
+  
+def block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x,y):
+
+    block= Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
+    blockdb.append(block)
+
+            
+
 
 
 def find_widget(x,y):
@@ -414,7 +459,7 @@ root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
 #Save set up
 def save_as_file():
-    merger = []
+    merger = [] 
     for i in blockdb:
         block_info =  i.values_of_block()
         blockinformation.append(block_info)
@@ -441,20 +486,20 @@ def save_as_file():
 
 #open file set up and placing blocks 
 def open_file():
-      pass
       data_file = filedialog.askopenfile(mode='r',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Open File", filetypes = (("CSV Files","*.csv"),))
       #data_file = open(data_file, "r")
       #content  =  data_file.read()
       #print(content)
-
+      reference = []
       if data_file:
           data_file_reader = csv.reader(data_file)
           for i in data_file_reader:
               if i == []:
                   continue
-              print(i)
-
-              
+              reference.append(i)
+        
+      create_from_file(reference)
+      reference.clear()
       data_file.close()
 
 
