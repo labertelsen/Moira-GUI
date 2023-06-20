@@ -402,26 +402,28 @@ def get_line_from_id(id):
 
 def on_run():
     print("ran")
-    print(trace(startpoint))
+    trace(startpoint, startval)
 
 
 def on_abort():
     print("aborted!")
 
-def trace(block_to_trace):
+def trace(block_to_trace, input):
     curr = block_to_trace
-    print("PASSING THRU: ", curr.text)
-    for portindex in range(len(curr.rightports)):
-        print("PORT NUM: ", portindex)
-        for lineindex in range(len(curr.rightports[portindex][1])):
-            print("LINE NUM: ", lineindex)
-            line = get_line_from_id(curr.rightports[portindex][1][lineindex])
-            next_block = line.end_block
-            next_port = next_block.leftports[line.end_port_index]
-            if next_block.text == 'End Point':
-                return('end')
-            else:
-                trace(next_block)
+    if curr.text != 'Start Point' and curr.text != 'End Point':
+        output = do_work(input)
+    else: 
+        output = input
+    if curr.text == 'End Point':
+        result = output
+    else:
+        for portindex in range(len(curr.rightports)):
+            for lineindex in range(len(curr.rightports[portindex][1])):
+                line = get_line_from_id(curr.rightports[portindex][1][lineindex])
+                next_block = line.end_block
+                next_port = next_block.leftports[line.end_port_index]
+                result = trace(next_block, output)
+    return result
 
 def scrub_line(IDlist):
     '''given a list of line IDs, check each block for any lines that need to be scrubbed and remove them'''
@@ -441,7 +443,23 @@ def scrub_line(IDlist):
                         if lines_list[index2] in IDlist:
                             lines_list.remove(lines_list[index2])
                         
+def frontal():
+    pass
 
+def occipital():
+    pass
+
+def temporal():
+    pass
+
+def parietal():
+    pass
+
+def do_work(val):
+    val += 1
+    return val
+
+startval = 0
 
 # basic tkinter setup
 root = Tk()
