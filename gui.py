@@ -401,12 +401,11 @@ def get_line_from_id(id):
             return line
 
 def on_run():
-    print("ran")
     trace(startpoint, startval)
 
 
 def on_abort():
-    print("aborted!")
+    pass
 
 def trace(block_to_trace, input):
     curr = block_to_trace
