@@ -401,21 +401,31 @@ def get_line_from_id(id):
             return line
 
 def on_run():
-    trace(startpoint, startval)
+    result = trace(startpoint, startval)
+    result
 
 
 def on_abort():
-    pass
+    print("aborted!")
 
 def trace(block_to_trace, input):
     curr = block_to_trace
-    if curr.text != 'Start Point' and curr.text != 'End Point':
-        output = do_work(input)
-    else: 
-        output = input
-    if curr.text == 'End Point':
-        result = output
+    
+    if curr.text == "End Point":
+        result = input
+        print(result)
     else:
+        if curr.text == "Start Point":
+            output = input
+        elif curr.text == "Frontal Lobe":
+            output = frontal(input)
+        elif curr.text == "Occipital Lobe":
+            output = occipital(input)
+        elif curr.text == "Temporal Lobe":
+            output = temporal(input)
+        elif curr.text == "Parietal Lobe":
+            output = parietal(input)
+    
         for portindex in range(len(curr.rightports)):
             for lineindex in range(len(curr.rightports[portindex][1])):
                 line = get_line_from_id(curr.rightports[portindex][1][lineindex])
@@ -442,23 +452,19 @@ def scrub_line(IDlist):
                         if lines_list[index2] in IDlist:
                             lines_list.remove(lines_list[index2])
                         
-def frontal():
-    pass
+def frontal(input):
+    return input + "F"
 
-def occipital():
-    pass
+def occipital(input):
+    return input + "O"
 
-def temporal():
-    pass
+def temporal(input):
+    return input + "T"
 
-def parietal():
-    pass
+def parietal(input):
+    return input + "P"
 
-def do_work(val):
-    val += 1
-    return val
-
-startval = 0
+startval = "s"
 
 # basic tkinter setup
 root = Tk()
@@ -483,7 +489,7 @@ run = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Run', menu=run)
 run.add_command(label='Run', command=on_run)
 # run.add_command(label='Pause', command=None)
-run.add_command(label='Abort', command=on_abort)
+# run.add_command(label='Abort', command=on_abort)
 
 edit = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Edit', menu=edit)
