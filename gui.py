@@ -6,13 +6,15 @@ from functools import partial
 from tkinter import filedialog
 import csv
 
+#TODO integrate line class
+
 # variable setup
 # temporary holding for coords of current line
 coords = [0, 0, 0, 0]
 # holding for line ids, used for updating line coords on the canvas in linedrag on_drag()
 lines = []
 # colors for port styling
-colors = ["gold", "red", "blue", "green", "orange"]
+colors = ["gray", "gold", "red", "blue", "green", "orange"]
 
 # holding var for line on rightclick deletion
 temp = None
@@ -23,6 +25,8 @@ blockinformation = []
 
 
 
+blockdb = []
+linedb = []
 
 class Block():
     '''A class for creating block objects'''
@@ -56,6 +60,9 @@ class Block():
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
         self.label.grid(column=1,row=0, rowspan=total_height)
 
+        # set text as attribute for tracing
+        self.text = lobe_name
+
         # create each left port and append to list, create inner list of line IDs for each port
         self.leftports = []
         for index in range(leftcount):
@@ -78,6 +85,8 @@ class Block():
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
+
+        blockdb.append(self)
 
 
     # function for deleting blocks and scrubbing memory
@@ -112,29 +121,30 @@ class Block():
                         scrub_list.append(line)
                         line_delete_on_block_delete(line)
 
-        # check each block for any lines in the scrub list and remove
-        for block in blockdb:
-            for port in block.leftports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] in scrub_list:
-                        lines_list.remove(lines_list[index])
-            for port in block.rightports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] in scrub_list:
-                        lines_list.remove(lines_list[index])
+        scrub_line(scrub_list)
 
 
         # remove block from block db
         blockdb.remove(delete_block)
         # destroy block visual
         parent.destroy()
+#<<<<<<< HEAD
     
 
     def values_of_block(self):
         return (self.title,self.leftcount,self.rightcount, self.lefttypes, self.rightypes)      
     
+#=======
+
+class Line():
+    def __init__(self, id, start_block, start_port_index, end_block, end_port_index):
+        self.id = id
+        self.start_block = start_block
+        self.start_port_index = start_port_index
+        self.end_block = end_block
+        self.end_port_index = end_port_index
+        linedb.append(self)
+#>>>>>>> backupBranch
 
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
@@ -209,7 +219,10 @@ class LineDrag():
         y = canvas.winfo_pointery()-canvas.winfo_rooty()
         coords[0] = x
         coords[1] = y
-        lines.append(canvas.create_line(coords[0],coords[1],coords[0], coords[1], width=3))
+        new_line_id = canvas.create_line(coords[0],coords[1],coords[0], coords[1], width=3)
+        create_line(new_line_id, None, None, None, None)
+        lines.append(new_line_id)
+
 
     def on_drag(self, event):
         '''when port is dragged, edit the existing line from the startpoint to the mouse's current location'''
@@ -232,38 +245,40 @@ class LineDrag():
             start_port = start_block.rightports[start_port_index]
             end_port = end_block.leftports[end_port_index]
 
+        else:
+            start_port = None
+            end_port = None
             # verify line is not output to output
-            if start_return[2] != 'R' and end_return[2] != 'L':
-                start_port = None
-                end_port = None
+        if start_return[2] != 'R' and end_return[2] != 'L':
+            start_port = None
+            end_port = None
 
-            if start_port and end_port:
-                if (start_port[0].type == end_port[0].type):
-                    # linedb.append(canvas.coords(lines[-1]))
-                    
-                    # add lines to port inner list
-                    start_block.rightports[start_port_index][1].append(lines[-1])
-                    end_block.leftports[end_port_index][1].append(lines[-1])
-
-                    normalize_line(lines[-1], start_port[0], end_port[0])
-                else:
-                    # if line is not valid, remove visual line and line in memory
-                    canvas.delete(lines[-1])
-                    lines.pop() 
+        if start_port and end_port:
+            # if start port and end port types match
+            if (start_port[0].type == end_port[0].type) or (start_port[0].type == 0) or (end_port[0].type == 0):                
+                # add lines to port inner list
+                start_block.rightports[start_port_index][1].append(lines[-1])
+                end_block.leftports[end_port_index][1].append(lines[-1])
+                linedb[-1].start_block = start_block
+                linedb[-1].start_port_index = start_port_index
+                linedb[-1].end_block = end_block
+                linedb[-1].end_port_index = end_port_index
+                normalize_line(lines[-1], start_port[0], end_port[0])
             else:
+                # if line is not valid, remove visual line and line in memory
                 canvas.delete(lines[-1])
                 lines.pop()
         else:
-                canvas.delete(lines[-1])
-                lines.pop()
+            canvas.delete(lines[-1])
+            lines.pop()
         
 
 def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
-    '''function to create blocks on button click'''
-    # takes the text that will appear on the block, the number of left ports, the number of right ports, a list of values corresponding to left port types (from top to bottom), and a list of right port values
+    '''function to create blocks'''
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
-    blockdb.append(block)
+    return block
 
+#<<<<<<< HEAD
 
 # Place Block function
 def create_from_file(reference):
@@ -314,6 +329,12 @@ def location_of_block():
         pass
 
 
+#=======
+def create_line(id, start_block, start_port, end_block, end_port):
+    '''function to create lines'''
+    line = Line(id, start_block, start_port, end_block, end_port)
+                   
+#>>>>>>> backupBranch
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
@@ -398,17 +419,7 @@ def line_delete(lineDelete):
         lines.remove(line)
 
         # scrub blocks for line to be deleted
-        for block in blockdb:
-            for port in block.leftports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] == line:
-                        lines_list.remove(line)
-            for port in block.rightports:
-                lines_list = port[1]
-                for index in range(len(lines_list)):
-                    if lines_list[index] == line:
-                        lines_list.remove(line)
+        scrub_line([line])
 
         lineDelete= ()
 
@@ -424,6 +435,8 @@ def find_line(e):
     if overlaps:
         global temp
         temp = overlaps[0]
+    else:
+        temp = None
 
 def move_line(e):
     x = e.x
@@ -452,20 +465,93 @@ def verify_line(e):
                 end_port = None
 
             if start_port and end_port:
-                if start_port[0].type == end_port[0].type:
+                if (start_port[0].type == end_port[0].type) or (start_port[0].type == 0) or (end_port[0].type == 0):
                     pass
                 else:
                     # if line is not valid, remove visual line and line in memory
                     canvas.delete(temp)
                     lines.pop() 
+                    scrub_line([temp])
             else:
                 canvas.delete(temp)
                 lines.pop()
+                scrub_line([temp])
         else:
                 canvas.delete(temp)
                 lines.pop()
+                scrub_line([temp])
         temp = None
 
+def get_line_from_id(id):
+    for line in linedb:
+        if line.id == id:
+            return line
+
+def on_run():
+    result = trace(startpoint, startval)
+    result
+
+
+def on_abort():
+    print("aborted!")
+
+def trace(block_to_trace, input):
+    curr = block_to_trace
+    
+    if curr.text == "End Point":
+        result = input
+        print(result)
+    else:
+        if curr.text == "Start Point":
+            output = input
+        elif curr.text == "Frontal Lobe":
+            output = frontal(input)
+        elif curr.text == "Occipital Lobe":
+            output = occipital(input)
+        elif curr.text == "Temporal Lobe":
+            output = temporal(input)
+        elif curr.text == "Parietal Lobe":
+            output = parietal(input)
+    
+        for portindex in range(len(curr.rightports)):
+            for lineindex in range(len(curr.rightports[portindex][1])):
+                line = get_line_from_id(curr.rightports[portindex][1][lineindex])
+                next_block = line.end_block
+                next_port = next_block.leftports[line.end_port_index]
+                result = trace(next_block, output)
+    return result
+
+def scrub_line(IDlist):
+    '''given a list of line IDs, check each block for any lines that need to be scrubbed and remove them'''
+    for block in blockdb:
+        for port in block.leftports:
+            lines_list = port[1]
+            if len(lines_list) > 0:
+                for index in range(len(lines_list)):
+                    if lines_list[index] in IDlist:
+                        lines_list.remove(lines_list[index])
+        for index in range(len(block.rightports)):
+            port = block.rightports[index]
+            lines_list = port[1]
+            if len(lines_list) > 0:
+                for index2 in range(len(lines_list)):
+                    if index2 in range(len(lines_list)):
+                        if lines_list[index2] in IDlist:
+                            lines_list.remove(lines_list[index2])
+                        
+def frontal(input):
+    return input + "F"
+
+def occipital(input):
+    return input + "O"
+
+def temporal(input):
+    return input + "T"
+
+def parietal(input):
+    return input + "P"
+
+startval = "s"
 
 # basic tkinter setup
 root = Tk()
@@ -536,6 +622,12 @@ file.add_command(label="Save",command=None)
 file.add_command(label='Open', command=lambda : open_file())
 file.add_command(label='Close Window', command=None)
 
+run = Menu(menubar, tearoff=0)
+menubar.add_cascade(label='Run', menu=run)
+run.add_command(label='Run', command=on_run)
+# run.add_command(label='Pause', command=None)
+# run.add_command(label='Abort', command=on_abort)
+
 edit = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Edit', menu=edit)
 
@@ -544,6 +636,7 @@ menubar.add_cascade(label='View', menu=view)
 
 help = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='Help', menu=help)
+
 
 # canvas setup
 canvas = Canvas(root, borderwidth=5, relief="ridge", width=500, height=500)
@@ -558,17 +651,19 @@ panel.grid_propagate(False)
 # setup class objects for enabling block reactivity
 bd = BlockDrag()
 ld = LineDrag()
-blockdb = []
 
 # create buttons in the panel and bind to creating Block objects with expected values
-frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [0], [1]))
+frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
 frontal_btn.grid(row=1,column=1)
-occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [0, 4]))
+occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
 occipital_btn.grid(row=2,column=1)
 temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
+
+startpoint = create_block("Start Point", 0, 1, [], [0])
+endpoint = create_block("End Point", 1, 0, [0], [])
 
 # bind canvas clicks to events
 canvas.bind("<Button-3>", on_rightline)
