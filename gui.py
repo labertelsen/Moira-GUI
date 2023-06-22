@@ -26,7 +26,7 @@ blockinformation = []
 
 class Block():
     '''A class for creating block objects'''
-    def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes):
+    def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes,x1=None,y1=None):
         ''' takes name of parent widget (canvas) and the text of the button (lobe name)'''
         
         self.title = lobe_name
@@ -34,7 +34,9 @@ class Block():
         self.rightcount = rightcount
         self.lefttypes = lefttypes
         self.rightypes = righttypes 
+       
         
+      
 
         # amount of rows required for block formatting
         total_height = (leftcount if leftcount >= rightcount else rightcount)
@@ -42,7 +44,13 @@ class Block():
         # creates a frame that holds the entire block
         self.frame = ttk.Frame(parent)
         #places the block in the left top corner
-        self.frame.grid(column=0, row=0)
+        if x1 == None and y1 == None:
+            self.frame.grid(column=0,row=0)
+        else:
+           #canvas.coords(self.frame,x1,y1,x2,y2)
+           self.frame.place(x=x1,y=y1)
+            #print(canvas.coords(self.frame))
+
 
         # creates the center portion of the block
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
@@ -117,13 +125,16 @@ class Block():
                     if lines_list[index] in scrub_list:
                         lines_list.remove(lines_list[index])
 
+
         # remove block from block db
         blockdb.remove(delete_block)
         # destroy block visual
         parent.destroy()
     
+
     def values_of_block(self):
         return (self.title,self.leftcount,self.rightcount, self.lefttypes, self.rightypes)      
+    
 
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
@@ -266,7 +277,7 @@ def create_from_file(reference):
         y1 = container[1]
         x2 = container[2]
         y2 = container[3]
-        x = (x1+x2)/2
+        x= (x1+x2)/2
         y= (y1+y2)/2
         text = container[4]
         leftcnt = container[5]
@@ -287,16 +298,20 @@ def create_from_file(reference):
                     if ele.isdigit():
                         righttypes.append(int(ele))
 
-        block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x,y)            
+        block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x1,y1)            
        
   
-def block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x,y):
+def block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x1,y1):
 
-    block= Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
+    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes,x1,y1)
     blockdb.append(block)
 
             
-
+def location_of_block():
+    for block in blockdb:
+        #print(canvas.coords(block.title))
+        #print(canvas.bbox(block.title))
+        pass
 
 
 def find_widget(x,y):
@@ -459,10 +474,12 @@ root.rowconfigure(1,weight=1)
 root.columnconfigure(0,weight=1)
 #Save set up
 def save_as_file():
+    location_of_block()
     merger = [] 
     for i in blockdb:
         block_info =  i.values_of_block()
         blockinformation.append(block_info)
+
 
     for i in blockdb:
         blockcoords.append(find_position(i.frame))
@@ -504,7 +521,6 @@ def open_file():
 
 
 
-      
 
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
