@@ -1,12 +1,8 @@
 # import statements
 from tkinter import *
-from tkinter import ttk
-from tkinter import Widget
 from functools import partial
 from tkinter import filedialog
 import csv
-
-#TODO integrate line class
 
 # variable setup
 # temporary holding for coords of current line
@@ -18,13 +14,8 @@ colors = ["gray", "gold", "red", "blue", "green", "orange"]
 
 # holding var for line on rightclick deletion
 temp = None
-# This holds the cordinates of the blocks 
-blockcoords = []
 
-blockinformation = []
-
-
-
+# class instance storage
 blockdb = []
 linedb = []
 
@@ -32,29 +23,23 @@ class Block():
     '''A class for creating block objects'''
     def __init__(self, parent, lobe_name, leftcount, rightcount, lefttypes, righttypes,x1=None,y1=None):
         ''' takes name of parent widget (canvas) and the text of the button (lobe name)'''
-        
         self.title = lobe_name
         self.leftcount = leftcount 
         self.rightcount = rightcount
         self.lefttypes = lefttypes
-        self.rightypes = righttypes 
-       
-        
-      
+        self.righttypes = righttypes 
 
         # amount of rows required for block formatting
         total_height = (leftcount if leftcount >= rightcount else rightcount)
     
         # creates a frame that holds the entire block
-        self.frame = ttk.Frame(parent)
-        #places the block in the left top corner
+        self.frame = Frame(parent)
+
+        #places the block at top left or at given coordinates
         if x1 == None and y1 == None:
             self.frame.grid(column=0,row=0)
         else:
-           #canvas.coords(self.frame,x1,y1,x2,y2)
            self.frame.place(x=x1,y=y1)
-            #print(canvas.coords(self.frame))
-
 
         # creates the center portion of the block
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
@@ -85,7 +70,7 @@ class Block():
 
         # allows the block button and labels to react when clicked on- center label reacts differently than the ports
         bd.add_draggable(self.label)
-
+        # add to db
         blockdb.append(self)
 
 
@@ -123,18 +108,11 @@ class Block():
 
         scrub_line(scrub_list)
 
-
         # remove block from block db
         blockdb.remove(delete_block)
         # destroy block visual
         parent.destroy()
-#<<<<<<< HEAD
     
-
-    def values_of_block(self):
-        return (self.title,self.leftcount,self.rightcount, self.lefttypes, self.rightypes)      
-    
-#=======
 
 class Line():
     def __init__(self, id, start_block, start_port_index, end_block, end_port_index):
@@ -144,15 +122,14 @@ class Line():
         self.end_block = end_block
         self.end_port_index = end_port_index
         linedb.append(self)
-#>>>>>>> backupBranch
 
 class BlockDrag():
     '''A class for allowing blocks to drag and drop'''
     def add_draggable(self, widget):
-            '''Bind events to functions'''
-            widget.bind('<ButtonPress-1>', self.on_start)
-            widget.bind('<B1-Motion>', self.on_drag)
-            widget.bind("<Button-3>", self.on_rightclick)
+        '''Bind events to functions'''
+        widget.bind('<ButtonPress-1>', self.on_start)
+        widget.bind('<B1-Motion>', self.on_drag)
+        widget.bind("<Button-3>", self.on_rightclick)
 
     def on_start(self, event):
         '''when button is clicked, record the starting location in the parent'''
@@ -199,9 +176,6 @@ class BlockDrag():
         m = Menu(root, tearoff = 0)
         # on delete button, call destroy function in block class and pass the label of the clicked block
         m.add_command(label ="Delete", command = partial(Block.destroy, widget))
-        m.add_command(label ="test1")
-        m.add_command(label ="test2")
-        m.add_command(label ="test3")
         m.tk_popup(x, y)
 
 
@@ -278,10 +252,10 @@ def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
     block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
     return block
 
-#<<<<<<< HEAD
 
-# Place Block function
 def create_from_file(reference):
+    '''create blocks from a saved file'''
+    # TODO
     for container in reference:
         for ele in container:
             if ele.isdigit():
@@ -316,25 +290,13 @@ def create_from_file(reference):
         block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x1,y1)            
        
   
-def block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x1,y1):
+def block_placement(text, leftcnt, rightcnt, lefttypes, righttypes, x1, y1):
+    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes, x1, y1)
 
-    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes,x1,y1)
-    blockdb.append(block)
-
-            
-def location_of_block():
-    for block in blockdb:
-        #print(canvas.coords(block.title))
-        #print(canvas.bbox(block.title))
-        pass
-
-
-#=======
 def create_line(id, start_block, start_port, end_block, end_port):
     '''function to create lines'''
     line = Line(id, start_block, start_port, end_block, end_port)
                    
-#>>>>>>> backupBranch
 def find_widget(x,y):
     '''function to find the widget under the mouse. Iterates through blockdb and checks if mouse is in the bounds of a port'''
     root.update()
@@ -368,10 +330,8 @@ def find_position(widget):
     y1 = widget.winfo_rooty()-root.winfo_rooty()
     x2 = x1 + widget.winfo_width()
     y2 = y1 + widget.winfo_height()
-    return(x1, y1, x2, y2)
+    return[x1, y1, x2, y2]
 
-
-            
 def normalize_line(lineid, startport, endport):
     # normalize both ends of line on release
     startx1, starty1, startx2, starty2 = find_position(startport)
@@ -403,9 +363,6 @@ def on_rightline(e):
     lineDelete = canvas.find_overlapping(x,y,x,y)
     if lineDelete: 
         m.add_command(label ="Delete", command = lambda:line_delete(lineDelete))
-        m.add_command(label ="test1")
-        m.add_command(label ="test2")
-        m.add_command(label ="test3")
         x = canvas.winfo_pointerx()
         y = canvas.winfo_pointery()
         #click is where the popup shows
@@ -483,19 +440,20 @@ def verify_line(e):
         temp = None
 
 def get_line_from_id(id):
+    '''given a line id, fine class instance holding the id'''
     for line in linedb:
         if line.id == id:
             return line
 
 def on_run():
+    '''on run button click, begin recursion with a give input'''
     result = trace(startpoint, startval)
-    result
-
 
 def on_abort():
     print("aborted!")
 
 def trace(block_to_trace, input):
+    '''recursive function to trace execution'''
     curr = block_to_trace
     
     if curr.text == "End Point":
@@ -551,30 +509,16 @@ def temporal(input):
 def parietal(input):
     return input + "P"
 
-startval = "s"
-
-# basic tkinter setup
-root = Tk()
-root.title("Build-a-Brain")
-root.rowconfigure(1,weight=1)
-root.columnconfigure(0,weight=1)
-#Save set up
+# save set up
 def save_as_file():
-    location_of_block()
     merger = [] 
-    for i in blockdb:
-        block_info =  i.values_of_block()
-        blockinformation.append(block_info)
+    for block in blockdb:
+        block_info = [block.text, block.leftcount, block.rightcount, block.lefttypes, block.righttypes]
+        block_coords = find_position(block.frame)
+        merger.append(block_info)
+        merger.append(block_coords)
 
-
-    for i in blockdb:
-        blockcoords.append(find_position(i.frame))
-
-    for i in range(len(blockinformation)):
-        merger.append(blockinformation[i])
-        merger.append(blockcoords[i])
-
-    data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Save File", filetypes = (("CSV Files","*.csv"),))
+    data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
     
     if data_file:
         data_file_writer =  csv.writer(data_file, delimiter=',')
@@ -583,20 +527,17 @@ def save_as_file():
             data_file_writer.writerow(merger[i]+merger[i-1])         
 
         merger.clear()
-        blockcoords.clear()
-        blockinformation.clear() 
         data_file.close()
 
 #open file set up and placing blocks 
 def open_file():
-      data_file = filedialog.askopenfile(mode='r',initialdir=r"C:\Users\ljwil\OneDrive\Documents\GitHub\Moira-GUI", title="Open File", filetypes = (("CSV Files","*.csv"),))
-      #data_file = open(data_file, "r")
-      #content  =  data_file.read()
-      #print(content)
+      data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
+      
       reference = []
       if data_file:
           data_file_reader = csv.reader(data_file)
           for i in data_file_reader:
+              # TODO
               if i == []:
                   continue
               reference.append(i)
@@ -605,8 +546,13 @@ def open_file():
       reference.clear()
       data_file.close()
 
+startval = "s"
 
-
+# basic tkinter setup
+root = Tk()
+root.title("Build-a-Brain")
+root.rowconfigure(1,weight=1)
+root.columnconfigure(0,weight=1)
 
 # window is divided into three portions: menu, panel, and canvas
 menubar = Menu(root)
@@ -644,7 +590,7 @@ canvas.grid(column=0, row=1, sticky="nswe", columnspan=1, rowspan=1)
 canvas.grid_propagate(False)
 
 # panel setup
-panel = ttk.Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
+panel = Frame(root, borderwidth=5, relief="ridge", width=200, height=500)
 panel.grid(column=1, row=1,sticky="nswe", columnspan=1, rowspan=1)
 panel.grid_propagate(False)
 
