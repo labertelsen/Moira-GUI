@@ -40,6 +40,8 @@ class Block():
             self.frame.grid(column=0,row=0)
         else:
            self.frame.place(x=x1,y=y1)
+        # self.frame.grid(column=0,row=0)
+
 
         # creates the center portion of the block
         self.label = Label(self.frame, text=lobe_name, borderwidth = 2, relief = 'solid', height = total_height)
@@ -247,51 +249,11 @@ class LineDrag():
             lines.pop()
         
 
-def create_block(text, leftcnt, rightcnt, lefttypes, righttypes):
+def create_block(text, leftcnt, rightcnt, lefttypes, righttypes, x = None, y = None):
     '''function to create blocks'''
-    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes)
-    return block
+    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes, x, y)
+    return block   
 
-
-def create_from_file(reference):
-    '''create blocks from a saved file'''
-    # TODO
-    for container in reference:
-        for ele in container:
-            if ele.isdigit():
-                swap_location = container.index(ele)
-                container[swap_location] = int(container[swap_location])
-
-        x1 = container[0]
-        y1 = container[1]
-        x2 = container[2]
-        y2 = container[3]
-        x= (x1+x2)/2
-        y= (y1+y2)/2
-        text = container[4]
-        leftcnt = container[5]
-        rightcnt = container[6]
-        pre_lefttypes =  list(container[7].split(" "))
-        lefttypes = []
-        pre_righttypes = list(container[8].split(" "))
-        righttypes = []
-        for primary in pre_lefttypes:            
-            for ele in primary:
-                if ele.isdigit():
-                    lefttypes.append(int(ele))
-        if pre_righttypes.count('[]')>0:
-            righttypes = []
-        else:   
-             for primary in pre_righttypes:            
-                 for ele in primary:
-                    if ele.isdigit():
-                        righttypes.append(int(ele))
-
-        block_placement(text, leftcnt,rightcnt,lefttypes,righttypes,x1,y1)            
-       
-  
-def block_placement(text, leftcnt, rightcnt, lefttypes, righttypes, x1, y1):
-    block = Block(canvas, text, leftcnt, rightcnt, lefttypes, righttypes, x1, y1)
 
 def create_line(id, start_block, start_port, end_block, end_port):
     '''function to create lines'''
@@ -475,11 +437,15 @@ def trace(block_to_trace, input):
             for lineindex in range(len(curr.rightports[portindex][1])):
                 line = get_line_from_id(curr.rightports[portindex][1][lineindex])
                 next_block = line.end_block
-                next_port = next_block.leftports[line.end_port_index]
-                result = trace(next_block, output)
+                if next_block != None:
+                    next_port = next_block.leftports[line.end_port_index]
+                    result = trace(next_block, output)
+                else:
+                    result = None
     return result
 
 def scrub_line(IDlist):
+    temp = []
     '''given a list of line IDs, check each block for any lines that need to be scrubbed and remove them'''
     for block in blockdb:
         for port in block.leftports:
@@ -487,7 +453,10 @@ def scrub_line(IDlist):
             if len(lines_list) > 0:
                 for index in range(len(lines_list)):
                     if lines_list[index] in IDlist:
-                        lines_list.remove(lines_list[index])
+                        temp.append(lines_list[index])
+            for item in temp:
+                lines_list.remove(item)
+            temp.clear()
         for index in range(len(block.rightports)):
             port = block.rightports[index]
             lines_list = port[1]
@@ -495,7 +464,15 @@ def scrub_line(IDlist):
                 for index2 in range(len(lines_list)):
                     if index2 in range(len(lines_list)):
                         if lines_list[index2] in IDlist:
-                            lines_list.remove(lines_list[index2])
+                            temp.append(lines_list[index2])
+            for item in temp:
+                lines_list.remove(item)
+        
+        for line in linedb:
+            if line.id in temp:
+                linedb.remove(line)
+            temp.clear()
+
                         
 def frontal(input):
     return input + "F"
@@ -513,38 +490,107 @@ def parietal(input):
 def save_as_file():
     merger = [] 
     for block in blockdb:
-        block_info = [block.text, block.leftcount, block.rightcount, block.lefttypes, block.righttypes]
-        block_coords = find_position(block.frame)
+        block_info = ["block", block.text, block.leftcount, block.rightcount, block.lefttypes, block.righttypes, find_position(block.frame)]
         merger.append(block_info)
-        merger.append(block_coords)
+
+    merger.append("-")
+    for line in linedb:
+        for index in range(len(blockdb)):
+            block = blockdb[index]
+            if block.frame == line.start_block.frame:
+                start_block_index = index
+
+        for index in range(len(blockdb)):
+            block = blockdb[index]
+            if block.frame == line.end_block.frame:
+                end_block_index = index
+
+        coords = canvas.coords(line.id)
+
+        line_info = ["line", start_block_index, line.start_port_index, end_block_index, line.end_port_index, coords[0], coords[1], coords[2], coords[3]]
+        merger.append(line_info)
 
     data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
     
     if data_file:
         data_file_writer =  csv.writer(data_file, delimiter=',')
 
-        for i in range(1,len(merger),2):
-            data_file_writer.writerow(merger[i]+merger[i-1])         
+        for i in range(len(merger)):
+            data_file_writer.writerow(merger[i])
 
         merger.clear()
         data_file.close()
 
-#open file set up and placing blocks 
 def open_file():
-      data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
+    data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
       
-      reference = []
-      if data_file:
-          data_file_reader = csv.reader(data_file)
-          for i in data_file_reader:
-              # TODO
-              if i == []:
-                  continue
-              reference.append(i)
+    block_ref = []
+    line_ref = []
+    if data_file:
+        data_file_reader = csv.reader(data_file)
+        for line in data_file_reader:
+            if line == []:
+                continue
+            if line[0] == "block":
+                block_ref.append(line)
+            elif line[0] == "line":
+                line_ref.append(line)
+            else:
+                pass
+ 
+    create_from_file(block_ref, line_ref)
+    block_ref.clear()
+    line_ref.clear()
+    data_file.close()
+
+
+def create_from_file(block_ref, line_ref):
+    '''create blocks from a saved file'''
+    global blockdb
+    global linedb
+    for block in blockdb:
+        frm = block.frame
+        frm.destroy()
+    blockdb.clear()
+
+    for block in block_ref:
+        text, leftcnt, rightcnt = block[1], int(block[2]), int(block[3])
+        lefttypes, righttypes = block[4].strip("[]").strip("]").split(","), block[5].strip("[").strip("]").split(",")
+        coords = block[6].strip("[").strip("]").strip(" ").split(",")
+        if leftcnt == 0:
+            lefttypes = []
+        if rightcnt == 0:
+            righttypes = []
+        for index in range(len(lefttypes)):
+            lefttypes[index] = int(lefttypes[index].strip(" "))
+        for index in range(len(righttypes)):
+            righttypes[index] = int(righttypes[index].strip(" "))
+        for index in range(len(coords)):
+            coords[index] = int(coords[index].strip(" "))
+
+        x1, y1= int(coords[0]), int(coords[1])
+
+        new_block = create_block(text, leftcnt, rightcnt, lefttypes, righttypes, x1, y1)
+
+
+    for line in line_ref:
+        start_block_index, start_port_index = int(line[1]), int(line[2])
+        end_block_index, end_port_index = int(line[3]), int(line[4])
+
+        coords = [float(line[5]), float(line[6]), float(line[7]), float(line[8])]
+        start_block = blockdb[start_block_index]
+        end_block = blockdb[end_block_index]
+
+        start_port = start_block.rightports[start_port_index]
+        end_port = end_block.leftports[end_port_index]
+        new_line = canvas.create_line(coords[0], coords[1], coords[2], coords[3], width = 3)
+        create_line(new_line, start_block, start_port, end_block, end_port)
+
+        start_block.rightports[start_port_index][1].append(new_line)
+        end_block.leftports[end_port_index][1].append(new_line)
         
-      create_from_file(reference)
-      reference.clear()
-      data_file.close()
+
+
 
 startval = "s"
 
