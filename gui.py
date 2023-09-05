@@ -653,6 +653,7 @@ temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_bloc
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
+#Great IDEA
 
 startpoint = create_block("Start Point", 0, 1, [], [0])
 endpoint = create_block("End Point", 1, 0, [0], [])
