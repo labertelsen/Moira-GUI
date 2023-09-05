@@ -593,6 +593,14 @@ def create_from_file(block_ref, line_ref):
 
 
 startval = "s"
+#Create Block for Importing 
+def Create_Block_File():
+    hello_block_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
+
+    if hello_block_file:
+        hello_block_file_writer = csv.writer(hello_block_file,delimiter=',')
+        hello_block_file_writer.writerow("Hello World")
+        hello_block_file.close()
 
 # basic tkinter setup
 root = Tk()
@@ -653,7 +661,10 @@ temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_bloc
 temporal_btn.grid(row=3,column=1)
 parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
 parietal_btn.grid(row=4,column=1)
-#Great IDEA
+
+#Import, Exporting, Creation  Buttons
+creation_btn = Button(panel, text="Create Hello Block", command= partial(Create_Block_File))
+creation_btn.grid(row=5,column=1)
 
 startpoint = create_block("Start Point", 0, 1, [], [0])
 endpoint = create_block("End Point", 1, 0, [0], [])
