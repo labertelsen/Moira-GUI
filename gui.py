@@ -595,18 +595,34 @@ def create_from_file(block_ref, line_ref):
 startval = "s"
 #Create Block for Importing 
 def Create_Block_File():
+    Hello_Block = ["Hello World"]
     hello_block_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
     if hello_block_file:
         hello_block_file_writer = csv.writer(hello_block_file,delimiter=',')
-        hello_block_file_writer.writerow("Hello World")
+        hello_block_file_writer.writerow(Hello_Block)
         hello_block_file.close()
 
 def Block_Retrevail():
     data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
-    Custom_Block = []
+    Hello_Block = []
     if data_file:
-        data_file_reader = csv.reader(data_file)
-        pass
+        for line in data_file:
+          Hello_Block.append(line)
+    data_file.close()
+    Reconstruct_Block(Hello_Block)
+
+
+def Reconstruct_Block(Hello_Block):
+    print(Hello_Block)
+    for i in Hello_Block:
+        if i != '\n': 
+            create_block(i,3, 0, [1, 2, 3], [])
+        else:
+            pass
+        
+
+
+    
 
 # basic tkinter setup
 root = Tk()
@@ -671,6 +687,11 @@ parietal_btn.grid(row=4,column=1)
 #Import, Exporting, Creation  Buttons
 creation_btn = Button(panel, text="Create Hello Block", command= partial(Create_Block_File))
 creation_btn.grid(row=5,column=1)
+
+import_btm =  Button(panel, text="Import Hello Block", command= partial(Block_Retrevail))
+import_btm.grid(row=6, column=1 )
+
+
 
 startpoint = create_block("Start Point", 0, 1, [], [0])
 endpoint = create_block("End Point", 1, 0, [0], [])
