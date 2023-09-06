@@ -596,11 +596,17 @@ startval = "s"
 #Create Block for Importing 
 def Create_Block_File():
     hello_block_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
-
     if hello_block_file:
         hello_block_file_writer = csv.writer(hello_block_file,delimiter=',')
         hello_block_file_writer.writerow("Hello World")
         hello_block_file.close()
+
+def Block_Retrevail():
+    data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
+    Custom_Block = []
+    if data_file:
+        data_file_reader = csv.reader(data_file)
+        pass
 
 # basic tkinter setup
 root = Tk()
