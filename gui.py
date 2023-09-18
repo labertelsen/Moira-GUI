@@ -603,26 +603,18 @@ def Create_Block_File():
         hello_block_file.close()
 
 def Block_Retrevail():
-    data_file = filedialog.askopenfile(mode='r', title="Open File", filetypes = (("CSV Files","*.csv"),))
-    Hello_Block = []
+    data_file = filedialog.askopenfilename()
     if data_file:
-        for line in data_file:
-          Hello_Block.append(line)
-    data_file.close()
-    Reconstruct_Block(Hello_Block)
+        data_file = data_file.split("/")[-1]
+        data_file= data_file.split(".")[0]
+        demo(data_file)
 
 
-def Reconstruct_Block(Hello_Block):
-    print(Hello_Block)
-    for i in Hello_Block:
-        if i != '\n': 
-            create_block(i,3, 0, [1, 2, 3], [])
-        else:
-            pass
-        
+def demo(data_file):
+    demonstration = __import__(data_file, globals(), locals(), [], 0)
+    hello_info = demonstration.HelloFunction()
+    create_block(hello_info,1,1,[0],[0])
 
-
-    
 
 # basic tkinter setup
 root = Tk()
@@ -695,7 +687,7 @@ import_btm.grid(row=6, column=1 )
 
 startpoint = create_block("Start Point", 0, 1, [], [0])
 endpoint = create_block("End Point", 1, 0, [0], [])
-
+#helloworld=create_block("Hello world", 1,1,[0],[0])
 # bind canvas clicks to events
 canvas.bind("<Button-3>", on_rightline)
 canvas.bind("<ButtonPress-1>", find_line)
