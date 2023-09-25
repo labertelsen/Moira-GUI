@@ -3,6 +3,8 @@ from tkinter import *
 from functools import partial
 from tkinter import filedialog
 import csv
+import os
+import shutil
 
 # variable setup
 # temporary holding for coords of current line
@@ -605,15 +607,23 @@ def Create_Block_File():
 def Block_Retrevail():
     data_file = filedialog.askopenfilename()
     if data_file:
+        newpath = shutil.move(data_file,os.path.dirname(os.path.abspath(__file__)))
         data_file = data_file.split("/")[-1]
-        data_file= data_file.split(".")[0]
+        data_file = data_file.split(".")[0]
         demo(data_file)
 
 
 def demo(data_file):
     demonstration = __import__(data_file, globals(), locals(), [], 0)
-    hello_info = demonstration.HelloFunction()
+    hello_info = demonstration.Hello_World()
     create_block(hello_info,1,1,[0],[0])
+# The next bit of code should create a button in the cog panel 
+# def button Creation()
+    # create button/ place it in the coulum 
+    # if block is present increment by 1
+    # Move to local directory/ check if in local directory 
+    #Already made the file drop down :)
+
 
 
 # basic tkinter setup
@@ -629,6 +639,7 @@ root.config(menu=menubar)
 # menu setup
 file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
+file.add_command(label="Import Module", command=None)
 file.add_command(label='Run', command=None)
 file.add_command(label='New', command=None)
 file.add_command(label='Save As', command=lambda :save_as_file())
