@@ -608,22 +608,24 @@ def Block_Retrevail():
     data_file = filedialog.askopenfilename()
     if data_file:
         newpath = shutil.move(data_file,os.path.dirname(os.path.abspath(__file__)))
+        print(newpath)
         data_file = data_file.split("/")[-1]
         data_file = data_file.split(".")[0]
-        demo(data_file)
+        print(data_file)
+        demo(data_file,panel_db)
 
-
-def demo(data_file):
+panel_db= []
+def demo(data_file,panel_db):
     demonstration = __import__(data_file, globals(), locals(), [], 0)
     hello_info = demonstration.Hello_World()
     create_block(hello_info,1,1,[0],[0])
-# The next bit of code should create a button in the cog panel 
-# def button Creation()
-    # create button/ place it in the coulum 
-    # if block is present increment by 1
-    # Move to local directory/ check if in local directory 
-    #Already made the file drop down :)
+    panel_db.append(data_file)
+    if data_file in panel_db:
+        btn = Button(panel, text=data_file)
+        btn.grid(row=(panel_db.index(data_file)+1), column=1 )
+    
 
+#use the class data when going throught the recursion 
 
 
 # basic tkinter setup
@@ -639,7 +641,7 @@ root.config(menu=menubar)
 # menu setup
 file = Menu(menubar, tearoff=0)
 menubar.add_cascade(label='File', menu=file)
-file.add_command(label="Import Module", command=None)
+file.add_command(label="Import Module", command= partial(Block_Retrevail))
 file.add_command(label='Run', command=None)
 file.add_command(label='New', command=None)
 file.add_command(label='Save As', command=lambda :save_as_file())
@@ -678,21 +680,21 @@ bd = BlockDrag()
 ld = LineDrag()
 
 # create buttons in the panel and bind to creating Block objects with expected values
-frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
-frontal_btn.grid(row=1,column=1)
-occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
-occipital_btn.grid(row=2,column=1)
-temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
-temporal_btn.grid(row=3,column=1)
-parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
-parietal_btn.grid(row=4,column=1)
+#frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
+#frontal_btn.grid(row=1,column=1)
+#occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
+#occipital_btn.grid(row=2,column=1)
+#temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
+#temporal_btn.grid(row=3,column=1)
+#parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
+#parietal_btn.grid(row=4,column=1)
 
 #Import, Exporting, Creation  Buttons
-creation_btn = Button(panel, text="Create Hello Block", command= partial(Create_Block_File))
-creation_btn.grid(row=5,column=1)
+#creation_btn = Button(panel, text="Create Hello Block", command= partial(Create_Block_File))
+#creation_btn.grid(row=1,column=1)
 
-import_btm =  Button(panel, text="Import Hello Block", command= partial(Block_Retrevail))
-import_btm.grid(row=6, column=1 )
+#import_btm =  Button(panel, text="Import Hello Block", command= partial(Block_Retrevail))
+#import_btm.grid(row=1, column=1 )
 
 
 
