@@ -422,10 +422,12 @@ def trace(block_to_trace, input):
     
     if curr.text == "End Point":
         result = input
-        print(result)
+        print(result)D
     else:
         if curr.text == "Start Point":
             output = input
+        elif curr.text in panel_db:
+            output = "RAN THROUGH MODULE IMPORT"
         elif curr.text == "Frontal Lobe":
             output = frontal(input)
         elif curr.text == "Occipital Lobe":
@@ -442,6 +444,7 @@ def trace(block_to_trace, input):
                 if next_block != None:
                     next_port = next_block.leftports[line.end_port_index]
                     result = trace(next_block, output)
+                    print("This is the amount of times it runs")
                 else:
                     result = None
     return result
@@ -475,7 +478,9 @@ def scrub_line(IDlist):
                 linedb.remove(line)
             temp.clear()
 
-                        
+def modual(input,text):
+    return input+ panel_db.index(text)                     
+
 def frontal(input):
     return input + "F"
 
@@ -608,17 +613,17 @@ def Block_Retrevail():
     data_file = filedialog.askopenfilename()
     if data_file:
         newpath = shutil.move(data_file,os.path.dirname(os.path.abspath(__file__)))
-        print(newpath)
+       # print(newpath)
         data_file = data_file.split("/")[-1]
         data_file = data_file.split(".")[0]
-        print(data_file)
+       # print(data_file)
         demo(data_file,panel_db)
 
 panel_db= []
 def demo(data_file,panel_db):
     demonstration = __import__(data_file, globals(), locals(), [], 0)
     hello_info = demonstration.Hello_World()
-    create_block(hello_info,1,1,[0],[0])
+    create_block(data_file,1,1,[0],[0])
     panel_db.append(data_file)
     if data_file in panel_db:
         btn = Button(panel, text=data_file)
