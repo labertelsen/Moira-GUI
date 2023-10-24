@@ -422,7 +422,7 @@ def trace(block_to_trace, input):
     
     if curr.text == "End Point":
         result = input
-        print(result)D
+        print(result)
     else:
         if curr.text == "Start Point":
             output = input
@@ -495,12 +495,17 @@ def parietal(input):
 
 # save set up
 def save_as_file():
+    #merger stores everything that will go into the csv file 
     merger = [] 
+
     for block in blockdb:
         block_info = ["block", block.text, block.leftcount, block.rightcount, block.lefttypes, block.righttypes, find_position(block.frame)]
         merger.append(block_info)
-
-    merger.append("-")
+    # First it iterates through the blockdb then rips the information and takes the position of the block at the save 
+   
+    merger.append("-")  # This indicates the "half way" point of the iteration
+   
+    # Second it iterates through the linedb and  rips taht information and position of the lines  then addes it to the merger
     for line in linedb:
         for index in range(len(blockdb)):
             block = blockdb[index]
@@ -517,7 +522,9 @@ def save_as_file():
         line_info = ["line", start_block_index, line.start_port_index, end_block_index, line.end_port_index, coords[0], coords[1], coords[2], coords[3]]
         merger.append(line_info)
 
+    # The  section takes the merger data and pushes it into the csv files 
     data_file = filedialog.asksaveasfile(defaultextension=".*",mode='w', title="Save File", filetypes = (("CSV Files","*.csv"),))
+    
     
     if data_file:
         data_file_writer =  csv.writer(data_file, delimiter=',')
@@ -559,7 +566,7 @@ def create_from_file(block_ref, line_ref):
         frm = block.frame
         frm.destroy()
     blockdb.clear()
-
+    
     for block in block_ref:
         text, leftcnt, rightcnt = block[1], int(block[2]), int(block[3])
         lefttypes, righttypes = block[4].strip("[]").strip("]").split(","), block[5].strip("[").strip("]").split(",")
@@ -685,14 +692,14 @@ bd = BlockDrag()
 ld = LineDrag()
 
 # create buttons in the panel and bind to creating Block objects with expected values
-#frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
-#frontal_btn.grid(row=1,column=1)
-#occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
-#occipital_btn.grid(row=2,column=1)
-#temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
-#temporal_btn.grid(row=3,column=1)
-#parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
-#parietal_btn.grid(row=4,column=1)
+frontal_btn = Button(panel,text="Frontal Lobe", command = partial(create_block, "Frontal Lobe", 1, 1, [1], [1]))
+frontal_btn.grid(row=1,column=1)
+occipital_btn = Button(panel, text="Occipital Lobe", command = partial(create_block, "Occipital Lobe", 1, 2, [2], [2, 4]))
+occipital_btn.grid(row=2,column=1)
+temporal_btn = Button(panel, text="Temporal Lobe", command = partial(create_block, "Temporal Lobe", 2, 3, [4, 1], [1, 2, 3]))
+temporal_btn.grid(row=3,column=1)
+parietal_btn = Button(panel,text="Parietal Lobe", command = partial(create_block, "Parietal Lobe", 3, 0, [1, 2, 3], []))
+parietal_btn.grid(row=4,column=1)
 
 #Import, Exporting, Creation  Buttons
 #creation_btn = Button(panel, text="Create Hello Block", command= partial(Create_Block_File))
